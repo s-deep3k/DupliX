@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
-export default userSchema = new mongoose.Schema({
+export const userSchema = new mongoose.Schema({
 username:{
     type: String,
     required: true,
@@ -21,7 +21,35 @@ password:{
     required: true,
     minLength: 6
 },
-followers:{
-
+followers:[
+    {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default:[]
+    }
+],
+following:[
+    {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default:[]
+    }
+],
+bio: {
+    type: String,
+    default:""
+},
+profileImg: {
+    type: String,
+    default:""
+},
+link: {
+    type: String,
+    default:""
 }
 },{timestamps:true})
+
+const User = mongoose.model("User", userSchema)
+//users will be name of collrction in db
+
+export default User
