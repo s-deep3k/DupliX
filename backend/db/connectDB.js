@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { MONGO_URI } from "../../env";
+import { MONGO_URI } from "../../env.local.js";
 import chalk from "chalk";
 
 export const connectMongoDB = async()=>{

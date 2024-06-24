@@ -43,6 +43,10 @@ profileImg: {
     type: String,
     default:""
 },
+coverImg:{
+type: String,
+    default:""
+},
 link: {
     type: String,
     default:""

@@ -1,5 +1,5 @@
 import e from "express"
-import { logout, signin, signup } from "../controllers/auth.controller"
+import { logout, signin, signup } from "../controllers/auth.controller.js"
 const authRouter = e.Router()
 
 authRouter.get("/signup",signup)

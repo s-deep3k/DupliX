@@ -1,8 +1,9 @@
 import express from 'express'
 import dotenv from 'dotenv'
-import authRouter from './routes/auth.route'
-import { PORT } from '../env'
-import { connectMongoDB } from './db/connectDB'
+import authRouter from './routes/auth.route.js'
+import { connectMongoDB } from './db/connectDB.js'
+import { PORT } from '../env.local.js'
+
 const app = express()
 dotenv.config()
 app.use(express.json())
