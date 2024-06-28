@@ -42,7 +42,7 @@ export const signup = async(req,res)=>{
                 // folloers: newUser.
             })
         }else{
-
+            res.status(400).json({error: "Error from signup contrlr"})
         }
 
     }

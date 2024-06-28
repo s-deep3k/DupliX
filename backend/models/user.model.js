@@ -54,6 +54,6 @@ link: {
 },{timestamps:true})
 
 const User = mongoose.model("User", userSchema)
-//users will be name of collrction in db
+//users will be name of collection in db
 
 export default User

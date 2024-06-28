@@ -1,1 +1,1 @@
-export const {MONGO_URI,PORT,JWT_SECRET, NODE_ENV} = process.env
+//export const {MONGO_URI,PORT,JWT_SECRET, NODE_ENV} = process.env
