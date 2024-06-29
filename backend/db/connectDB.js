@@ -1,11 +1,11 @@
-import mongoose from "mongoose";
-import { MONGO_URI } from "../../env.local.js";
+import mongoose from "mongoose"
 import chalk from "chalk";
 
 export const connectMongoDB = async()=>{
     try {
-        const connect = await mongoose.connect(MONGO_URI)
-        console.log(chalk.bgGreenBright(`DB connected : ${connect.connection.host}`));
+        const connect = await mongoose.connect(process.env.MONGO_URI)
+        //connect.connection.host
+        console.log(chalk.bgGreenBright(`DB connected `));
     } catch (error) {
         console.log(chalk.bgRed(`Connection to DB disrupted. ${error.message}`));
     }
