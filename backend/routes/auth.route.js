@@ -1,5 +1,5 @@
 import e from "express"
-import { logout, signin, signup } from "../controllers/auth.controller.js"
+import { getMe, logout, signin, signup } from "../controllers/auth.controller.js"
 import { protectRoute } from "../middlewares/protectRoute.js"
 const authRouter = e.Router()
 
