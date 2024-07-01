@@ -1,3 +1,4 @@
+import Notification from "../models/notification.model"
 import User from "../models/user.model"
 
 
@@ -7,19 +8,9 @@ export const getUserProfile = async (req,res)=>{
         const userProfile = await User.findOne({username}).select('-password')
         if(!userProfile)res.status(404).json({error:"No User Found!"})
             
-        res.status(200).json({
-            id: newUser._id,
-            username: newUser.username,
-            email: newUser.email,
-            fullname: newUser.fullname,
-            bio: newUser.bio,
-            profileImg: newUser.profileImg,
-            coverImg: newUser.coverImg,
-            followers: newUser.followers,
-            following: newUser.following
-        })
+        res.status(200).json(userProfile)
     } catch (error) {
-        console.log(error);
+        console.log(error.message);
         res.status(400).json({error:"Error from getUserProfile"})
     }
 }
@@ -40,9 +31,23 @@ export const followUnfollowUser = async (req,res)=>{
     if(id===req.user._id)
         res.status(404).json({error:"You cannot follow / unfollow yourself!"})
     if(currentUser.following.includes(id)){
-        currentUser.following = currentUser.following.filter(follow=>follow._id!==id)
+        //Unfollow
+       await User.findByIdAndUpdate(req.user._id,{$pull:{followers:id}})
+       await User.findByIdAndUpdate(id,{$pull:{following:req.user._id}})
+       res.status(200).json({message:"User has been unfollowed!"})
     }else{
-        currentUser.following.concat(id)
+        //Follow
+        await User.findByIdAndUpdate(req.user._id,{$push:{followers:id}})
+       await User.findByIdAndUpdate(id,{$push:{following:req.user._id}})
+
+       const newNotification = new Notification({
+        type:"FOLLOW",
+        from: req.user._id,
+        to: userToFollow.id
+    })
+    await newNotification.save()
+// TODO: return the id of user as response
+       res.status(200).json({message:"User has been followed!"})
     }
     }
     catch(err){
