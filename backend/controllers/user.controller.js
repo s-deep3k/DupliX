@@ -1,6 +1,6 @@
 import Notification from "../models/notification.model"
 import User from "../models/user.model"
-
+import bcrypt from 'bcryptjs'
 
 export const getUserProfile = async (req,res)=>{
     try {
@@ -15,9 +15,57 @@ export const getUserProfile = async (req,res)=>{
     }
 }
 
-export const updateUserProfile = async (req,res)=>{}
+export const updateUserProfile = async (req,res)=>{
+    const {fullname, username, newPassword, currentPassword, email} = req.body
+    let {coverImg, profileImg} = req.body
 
-export const suggestedProfiles = async (req,res)=>{}
+    const userId = req.user._id
+
+    const user = await User.findById(userId)
+    if(!user) res.status(404).json({error:"User Not Found!"})
+    
+    if(!newPassword || !currentPassword)
+        res.status(400).json({error:"Current Password and New Password!"})
+    else{
+        const isMatch = bcrypt.compare(currentPassword, user.password)
+        if(!isMatch)res.status(400).json({error:"Current Password you entered is incorrect!"})
+        if(newPassword.length()<6)res.status(400).json({error:"New Password cannot be less than 6 characters"})
+        
+        const salt =await bcrypt.genSalt()
+        const hashedPassword =await bcrypt.hash(newPassword,salt)
+
+        if(coverImg){}
+
+        if(profileImg){}   
+    }
+}
+
+export const suggestedProfiles = async (req,res)=>{
+    try {
+        const userId = req.user._id
+
+        const usersFollowedByMe = await User.findById(userId).select("following")
+        // getting 10 users who are not me.
+        const users = User.aggregate([
+            {
+                $match:{
+                    _id: {$ne: userId}
+                }
+            },
+            {$sample:{size:10}}
+        ])
+        //filtering out users that I dont follow
+        const filteredUsers = users.filter(user=> !usersFollowedByMe.following.includes(user._id))
+        //taking just 4 out of the unfollowed users
+        const suggestedUsers = filteredUsers.splice(0,4).forEach(user=>user.password=null)
+
+        res.status(200).json(suggestedUsers)
+
+    } catch (error) {
+        console.log("Error from suggested profiles controller");
+        res.status(400).json({error: error.message})
+    }
+}
 
 export const followUnfollowUser = async (req,res)=>{
     try{
