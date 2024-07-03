@@ -1,6 +1,8 @@
 import Notification from "../models/notification.model"
 import User from "../models/user.model"
+
 import bcrypt from 'bcryptjs'
+import {v2 as cloudinary} from 'cloudinary'
 
 export const getUserProfile = async (req,res)=>{
     try {
@@ -16,28 +18,55 @@ export const getUserProfile = async (req,res)=>{
 }
 
 export const updateUserProfile = async (req,res)=>{
+    try
+    {
     const {fullname, username, newPassword, currentPassword, email} = req.body
     let {coverImg, profileImg} = req.body
 
     const userId = req.user._id
 
-    const user = await User.findById(userId)
+    let user = await User.findById(userId)
     if(!user) res.status(404).json({error:"User Not Found!"})
     
-    if(!newPassword || !currentPassword)
-        res.status(400).json({error:"Current Password and New Password!"})
-    else{
+    if((!newPassword&&currentPassword) || (!currentPassword&&newPassword))
+        res.status(400).json({error:"Current Password and New Password both must be given!"})
+    if(newPassword && currentPassword){
         const isMatch = bcrypt.compare(currentPassword, user.password)
         if(!isMatch)res.status(400).json({error:"Current Password you entered is incorrect!"})
         if(newPassword.length()<6)res.status(400).json({error:"New Password cannot be less than 6 characters"})
         
         const salt =await bcrypt.genSalt()
-        const hashedPassword =await bcrypt.hash(newPassword,salt)
-
-        if(coverImg){}
-
-        if(profileImg){}   
+        user.password =await bcrypt.hash(newPassword,salt)
     }
+        if(coverImg){
+            if(user.coverImg)
+                await cloudinary.uploader.destroy(user.coverImg.split('/').pop().split('.')[0])
+            const uploadedResponse = await cloudinary.uploader.upload(coverImg)
+            coverImg = uploadedResponse.secure_url
+        }
+
+        if(profileImg){
+            if(user.profileImg)
+                await cloudinary.uploader.destroy(user.profileImg.split('/').pop().split('.')[0])
+            const uploadedResponse = await cloudinary.uploader.upload(profileImg)
+            profileImg = uploadedResponse.secure_url
+        }   
+
+        user.fullname = fullname || user.fullname
+        user.username = username || user.username
+        user.email = email || user.email
+        user.coverImg = coverImg || user.coverImg
+        user.profileImg = profileImg || user.profileImg
+
+        await user.save()
+        user.password=null
+        res.status(200).json(user)
+    }
+    catch(err){
+        console.log("Error from update user cntroller");
+        res.status(400).json({error:err.message})
+    }
+    
 }
 
 export const suggestedProfiles = async (req,res)=>{
