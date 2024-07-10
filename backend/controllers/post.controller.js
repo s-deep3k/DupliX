@@ -53,7 +53,18 @@ export const likeUnlikePost = async(req,res)=>{
     const userId = req.user._id
 
     if(!checkUserAuth(userId))
-        res.status(403).json({error: "You are not authorized to create a post!"})
+        res.status(403).json({error: "You are not authorized to like/unlike a post!"})
+    const post = await Post.findById(postId)
+    if(!post)res.status(404).json({error: "No such post found !"})
+
+    if(post.likes.includes(userId))
+    {//Unlike
+        await Post.findByIdAndUpdate(postId,{$pull:{likes:userId}})
+        await User.findByIdAndUpdate(userId,{$pull:{likedPosts:postId}})
+    }else{
+        await Post.findByIdAndUpdate(postId,{$push:{likes:userId}})
+        await User.findByIdAndUpdate(userId,)
+    }
 }
 
 export const deletePost = async(req,res)=>{
