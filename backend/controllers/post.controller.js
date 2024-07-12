@@ -9,6 +9,25 @@ const checkUserAuth = (userId)=>{
     else
         return true
 }
+
+export const getAllPosts = async(req,res)=>{
+    try{
+        const posts = await Post.find()
+        .sort({createdAt: -1})
+        .populate({
+            path:'user',
+            select: '-password'
+        }).populate({
+            path:'comments.user',
+            select: '-password'
+        })
+
+        res.status(200).json(posts)
+    }catch(err){
+        console.log("Error from Get ALL Posts ");
+        res.status(400).json({error:err.message})
+    }
+}
 export const createPost= async(req, res)=>{
     try{
     const {text} = req.body
@@ -41,11 +60,16 @@ catch(err){
 
 export const commentOnPost = async(req,res)=>{
     const postId = req.params.id
-    
+    const {text} = req.body
     const userId = req.user._id
 
     if(!checkUserAuth(userId))
         res.status(403).json({error: "You are not authorized to create a post!"})
+
+    const post = await Post.findById(postId)
+    if(!post)res.status(404).json({error: "No Such Post found."})
+    if(text)
+    {}
 }
 
 export const likeUnlikePost = async(req,res)=>{
@@ -68,10 +92,17 @@ export const likeUnlikePost = async(req,res)=>{
 }
 
 export const deletePost = async(req,res)=>{
+    try{
     const postId = req.params.id
-    const userId = req.user._id
+   // const userId = req.user._id
 
-    if(!checkUserAuth(userId))
-        res.status(403).json({error: "You are not authorized to create a post!"})
-
+    const post = await Post.findByIdAndDelete(postId)
+    if(!post)res.status(404).json({error: "No Such Post found."})
+    else
+    res.status(200).json({message: " Post deleted successfully."})
+    }
+    catch(err){
+        console.log("Error from Delete Post");
+        res.status(400).json({error:err.message})
+    }
 }

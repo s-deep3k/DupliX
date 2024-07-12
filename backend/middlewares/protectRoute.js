@@ -5,7 +5,7 @@ export const protectRoute = (req,res,next)=>{
         const token = req.cookies.jwt
         const decoded = jwt.verify(token,process.env.JWT_SECRET)
         if(!decoded)
-            res.status(401).json({error: "Invalid Token Detected!"})
+            res.status(401).json({error: "Unauthorized! No Token Detected!"})
 
         const user = User.findById(decoded.userId).select("-password")
         if(!user) res.status(401).json({error:"No User Found!"})
