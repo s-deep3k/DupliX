@@ -2,13 +2,6 @@ import {v2 as cloudinary} from 'cloudinary'
 import Post from '../models/post.model.js'
 import User from '../models/user.model.js'
 
-const checkUserAuth = (userId)=>{
-    const user = User.findById(userId)
-    if(!user)
-        return false
-    else
-        return true
-}
 
 export const getAllPosts = async(req,res)=>{
     try{
@@ -27,6 +20,33 @@ export const getAllPosts = async(req,res)=>{
         console.log("Error from Get ALL Posts ");
         res.status(400).json({error:err.message})
     }
+}
+
+export const getLikedPosts = async(req,res)=>{
+    const userId = req.params.id
+    try {
+        const user = await User.findById(userId)
+        if(!user)
+            res.status(404).json({error:"User not Found!"})
+    
+        const likedPosts = await Post.find({_id: {$in: user.likedPosts} }).populate({
+            path:'user',
+            select: '-password'
+        }).populate({
+            path:'comments.user',
+            select: '-password'
+        })
+        res.status(200).json(likedPosts)
+    } catch (error) {
+        console.log("Error from get liked Posts");
+        res.status(400).json({error:error.message})
+        
+    }
+    
+}
+
+export const getFollowing = async(req,res)=>{
+
 }
 export const createPost= async(req, res)=>{
     try{
@@ -63,7 +83,8 @@ export const commentOnPost = async(req,res)=>{
     const {text} = req.body
     const userId = req.user._id
 
-    if(!checkUserAuth(userId))
+    const user = await User.findById(userId)
+        if(!user)
         res.status(403).json({error: "You are not authorized to create a post!"})
 
     const post = await Post.findById(postId)
@@ -76,7 +97,8 @@ export const likeUnlikePost = async(req,res)=>{
     const postId = req.params.id
     const userId = req.user._id
 
-    if(!checkUserAuth(userId))
+    const user = await User.findById(userId)
+        if(!user)
         res.status(403).json({error: "You are not authorized to like/unlike a post!"})
     const post = await Post.findById(postId)
     if(!post)res.status(404).json({error: "No such post found !"})
@@ -94,11 +116,17 @@ export const likeUnlikePost = async(req,res)=>{
 export const deletePost = async(req,res)=>{
     try{
     const postId = req.params.id
-   // const userId = req.user._id
 
-    const post = await Post.findByIdAndDelete(postId)
+    const post = await Post.findById(postId)
     if(!post)res.status(404).json({error: "No Such Post found."})
-    else
+    
+        if(post.user.toString()!==req.user._id.toString())
+        res.status(403).json({error:"You are not authorized to delete this post!"})
+    if(post.img){
+        const imgUrl = post.img.split('/').pop().split('.')[0]
+        await cloudinary.uploader.destroy(imgUrl)
+    }
+    await Post.findByIdAndDelete(postId)
     res.status(200).json({message: " Post deleted successfully."})
     }
     catch(err){

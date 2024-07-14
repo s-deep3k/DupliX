@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { protectRoute } from "../middlewares/protectRoute";
+import { protectRoute } from "../middlewares/protectRoute.js";
 
 const userRouter = Router()
 
