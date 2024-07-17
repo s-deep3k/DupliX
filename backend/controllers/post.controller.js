@@ -45,8 +45,55 @@ export const getLikedPosts = async(req,res)=>{
     
 }
 
-export const getFollowing = async(req,res)=>{
+export const getFollowingPosts = async(req,res)=>{
+    const userId = req.user._id
+    try {
+        const user = await User.findById(userId)
+        if(!user)
+            res.status(404).json({error:"User not Found!"})
+    
+        const following = user.following
+        const feedPosts = await Post.find({user: {$in: following} })
+        .sort({createdAt: -1})
+        .populate({
+            path:'user',
+            select: '-password'
+        }).populate({
+            path:'comments.user',
+            select: '-password'
+        })
 
+        res.status(200).json(feedPosts)
+    } catch (error) {
+        console.log('Error from getFollowingPosts ctrller');
+        res.status(400).json({error:error.message})
+        
+    }
+}
+
+export const getUserPosts = async(req,res)=>{
+    try{
+        const {username} = req.params
+        const user = await User.findOne({username})
+        if(!user)
+            res.status(404).json({error:"User not Found!"})
+
+        const userPosts = await Post.find({user})
+        .sort({createdAt: -1})
+        .populate({
+            path:'user',
+            select: '-password'
+        }).populate({
+            path:'comments.user',
+            select: '-password'
+        })
+
+        res.status(200).json(userPosts)
+    }catch(err){
+        console.log("Error from getUserPosts ctrller");
+        res.status(400).json({error:err.message})
+        
+    }
 }
 export const createPost= async(req, res)=>{
     try{
