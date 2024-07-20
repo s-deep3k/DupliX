@@ -15,7 +15,7 @@ cloudinary.config({
     api_secret:process.env.CLOUDINARY_API_SECRET,
     cloud_name:process.env.CLOUDINARY_CLOUD_NAME
 })
-//app.use(cookieParser())
+app.use(cookieParser())
 app.use(express.json())
 app.use(urlencoded({extended:true}))
 
