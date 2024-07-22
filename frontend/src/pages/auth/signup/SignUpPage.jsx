@@ -35,6 +35,7 @@ const SignUpPage = () => {
 			<div className='flex-1 flex flex-col justify-center items-center'>
 				<form className='lg:w-2/3  mx-auto md:mx-20 flex gap-4 flex-col' onSubmit={handleSubmit}>
 					<XSvg className='w-24 lg:hidden fill-white' />
+					<h1 className='text-8xl font-extrabold text-white'>Happening now</h1>
 					<h1 className='text-4xl font-extrabold text-white'>Join today.</h1>
 					<label className='input input-bordered rounded flex items-center gap-2'>
 						<MdOutlineMail />
@@ -84,9 +85,10 @@ const SignUpPage = () => {
 					</label>
 					<button className='btn rounded-full btn-primary text-white'>Sign up</button>
 					{isError && <p className='text-red-500'>Something went wrong</p>}
+					<span className="text-slate-500">By signing up, you agree to the <span className="text-blue-500 hover:underline cursor-pointer">Terms of Service</span> and <span className="text-blue-500 cursor-pointer hover:underline">Privacy Policy</span>, including <span className="text-blue-500 cursor-pointer hover:underline">Cookie Use.</span></span>
 				</form>
 				<div className='flex flex-col lg:w-2/3 gap-2 mt-4'>
-					<p className='text-white text-lg'>Already have an account?</p>
+					<p className='text-white text-lg font-semibold'>Already have an account?</p>
 					<Link to='/login'>
 						<button className='btn rounded-full btn-primary text-white btn-outline w-full'>Sign in</button>
 					</Link>
