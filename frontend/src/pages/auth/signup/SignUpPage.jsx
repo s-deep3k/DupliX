@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import {useMutation} from '@tanstack/react-query'
 
 import XSvg from "../../../components/svgs/X";
 
@@ -15,6 +16,7 @@ const SignUpPage = () => {
 		fullName: "",
 		password: "",
 	});
+	const {mutate, error, isError, isPending} = useMutation()
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -25,7 +27,7 @@ const SignUpPage = () => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
 
-	const isError = false;
+	//const isError = false;
 
 	return (
 		<div className='max-w-screen-xl mx-auto flex h-screen px-10'>
