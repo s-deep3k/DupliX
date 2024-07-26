@@ -5,8 +5,23 @@ import { IoNotifications } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { BiLogOut } from "react-icons/bi";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const Sidebar = () => {
+	const {mutate:logout} = useMutation({
+		mutationFn: async()=>{
+			const res = await fetch('/api/v1/auth/logout')
+			const data = await res.json()
+			if(!res.ok) throw Error(data.error || 'Something Wrong occured!')
+		},
+		onSuccess: ()=>{
+			toast.success('Logout Successful!')
+		},
+		onError: ()=>{
+			toast.error('Logout Failed!')
+		}
+	})
 	const data = {
 		fullName: "John Doe",
 		username: "johndoe",

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import {useMutation} from '@tanstack/react-query'
+import {toast} from 'react-hot-toast'
 
 import XSvg from "../../../components/svgs/X";
 
@@ -16,18 +17,37 @@ const SignUpPage = () => {
 		fullName: "",
 		password: "",
 	});
-	const {mutate, error, isError, isPending} = useMutation()
+	const {mutate: signupMutation, error, isError, isPending} = useMutation({
+		mutationFn: async({email, username, fullName, password})=>{
+			try {
+				const res = await fetch('/api/v1/auth/signup',{
+					method:'POST',
+					headers:{'Content-Type':'application/json'},
+					body: JSON.stringify({email, username, fullName, password})
+				})
+				const data = await res.json()
+				if(!res.ok) throw Error(error.message || 'Failed to fetch account')
+				return data
+			} catch (error) {
+				toast.error(error.message)	
+				console.log(error.message);
+					
+			}
+		},
+		onSuccess: ()=>{
+			toast.success("Signup Successful!")
+		}
+	})
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		console.log(formData);
+		signupMutation(formData)
 	};
 
 	const handleInputChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
-
-	//const isError = false;
 
 	return (
 		<div className='max-w-screen-xl mx-auto flex h-screen px-10'>
@@ -85,8 +105,8 @@ const SignUpPage = () => {
 							value={formData.password}
 						/>
 					</label>
-					<button className='btn rounded-full btn-primary text-white'>Sign up</button>
-					{isError && <p className='text-red-500'>Something went wrong</p>}
+					<button className='btn rounded-full btn-primary text-white'>{isPending?'Loading...' :'Sign up'}</button>
+					{isError && <p className='text-red-500'>{error.message}</p>}
 					<span className="text-slate-500">By signing up, you agree to the <span className="text-blue-500 hover:underline cursor-pointer">Terms of Service</span> and <span className="text-blue-500 cursor-pointer hover:underline">Privacy Policy</span>, including <span className="text-blue-500 cursor-pointer hover:underline">Cookie Use.</span></span>
 				</form>
 				<div className='flex flex-col lg:w-2/3 gap-2 mt-4'>
