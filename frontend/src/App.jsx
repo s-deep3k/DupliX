@@ -6,18 +6,20 @@ import Sidebar from "./components/common/Sidebar";
 import NotificationPage from "./pages/notification/NotificationPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import { useQuery } from "@tanstack/react-query";
-import { data } from "autoprefixer";
+import RightPanel from './components/common/RightPanel'
 import LoadingSpinner from "./components/common/LoadingSpinner";
+import { Toaster } from "react-hot-toast";
 
 
 const App = ()=> {
-	const {data, isLoading} = useQuery({
+	const {data: authUser, isLoading} = useQuery({
 		queryKey: ['authUser'],
 		queryFn: async()=>{
 			const res = await fetch('/api/v1/auth/profile/me')
 			const data = await res.json()
 			if(!res.ok) throw Error(data.error || 'Something wrong happened!')
 		},
+		retry: false
 	})
 	if(isLoading)
 	{
@@ -28,19 +30,20 @@ const App = ()=> {
 		)
 	}
 
-	console.log('authUser is here:', data);
-	const {authUser} = data 
+	console.log('authUser is here:', authUser);
 	
 	return (
 		<div className='flex max-w-6xl mx-auto'>
-			<Sidebar/>
+			{authUser && <Sidebar/>}
 			<Routes>
 				<Route path='/' element={authUser?<HomePage/>:<Navigate to={'/login'}/>} />
-				<Route path='/signup' element={<SignUpPage />} />
-				<Route path='/login' element={<LoginPage />} />
-				<Route path="/notifications" element={<NotificationPage />}/>
-				<Route path="/profile/:username" element={<ProfilePage />}/>
+				<Route path='/signup' element={!authUser?<SignUpPage />:<Navigate to={'/'}/>} />
+				<Route path='/login' element={!authUser?<LoginPage />:<Navigate to={'/'}/>} />
+				<Route path="/notifications" element={authUser?<NotificationPage />:<Navigate to={'/login'}/>}/>
+				<Route path="/profile/:username" element={authUser?<ProfilePage />:<Navigate to={'/login'}/>}/>
 			</Routes>
+			{authUser && <RightPanel/>}
+			<Toaster/>
 		</div>
 	);
 }

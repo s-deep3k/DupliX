@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import Posts from "../../components/common/Posts";
 import CreatePost from "./CreatePost";
-import RightPanel from "../../components/common/RightPanel";
+//import RightPanel from "../../components/common/RightPanel";
 
 const HomePage = () => {
 	const [feedType, setFeedType] = useState("forYou");
@@ -40,7 +40,7 @@ const HomePage = () => {
 				{/* POSTS */}
 				<Posts />
 			</div>
-			<RightPanel/>
+			{/* <RightPanel/> */}
 		</>
 	);
 };

@@ -5,6 +5,8 @@ import XSvg from "../../../components/svgs/X";
 
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const LoginPage = () => {
 	const [formData, setFormData] = useState({
@@ -20,16 +22,19 @@ const LoginPage = () => {
 					body: JSON.stringify({username, password})
 				})
 				const data = await res.json()
-				if(!res.ok) throw Error(error.message || 'Failed to fetch account')
+				if(!res.ok) throw Error(data.message || 'Failed to fetch account')
 				return data
 			} catch (error) {
 				toast.error(error.message)	
-				console.log(error.message);
+				console.error(error.message);
 					
 			}
 		},
 		onSuccess: ()=>{
 			toast.success("Signup Successful!")
+		},
+		onError: ()=>{
+			toast.error(error.message)
 		}
 	})
 	const handleSubmit = (e) => {
