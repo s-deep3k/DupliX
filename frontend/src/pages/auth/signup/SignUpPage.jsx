@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import {useMutation} from '@tanstack/react-query'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {toast} from 'react-hot-toast'
 
 import XSvg from "../../../components/svgs/X";
@@ -11,6 +11,7 @@ import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
 
 const SignUpPage = () => {
+	const queryClient = useQueryClient()
 	const [formData, setFormData] = useState({
 		email: "",
 		username: "",
@@ -36,6 +37,7 @@ const SignUpPage = () => {
 		},
 		onSuccess: ()=>{
 			toast.success("Signup Successful!")
+			queryClient.invalidateQueries({queryKey:['authUser']})
 		}
 	})
 

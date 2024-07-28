@@ -17,6 +17,7 @@ const App = ()=> {
 		queryFn: async()=>{
 			const res = await fetch('/api/v1/auth/profile/me')
 			const data = await res.json()
+			if(data.error) return null
 			if(!res.ok) throw Error(data.error || 'Something wrong happened!')
 		},
 		retry: false
