@@ -23,7 +23,7 @@ const LoginPage = () => {
 					body: JSON.stringify({username, password})
 				})
 				const data = await res.json()
-				if(!res.ok) throw Error(data.message || 'Failed to fetch account')
+				if(!res.ok) throw new Error(data.message || 'Failed to fetch account')
 				return data
 			} catch (error) {
 				toast.error(error.message)	
