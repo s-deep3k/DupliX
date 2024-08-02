@@ -5,16 +5,17 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { QueryClient, useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-const Post = ({ post, key }) => {
-	const queryClient = new QueryClient()
+const Post = ({ post}) => {
+	const queryClient = useQueryClient()
+	const authUser = useQuery({queryKey:['authUser']})
 	const [comment, setComment] = useState("");
 	const postOwner = post.user;
 	const isLiked = false;
 
-	const isMyPost = true;
+	const isMyPost = postOwner._id===authUser._id;
 
 	const formattedDate = "1h";
 
@@ -37,6 +38,7 @@ const Post = ({ post, key }) => {
 		},
 		onSuccess: ()=>{
 			queryClient.invalidateQueries({queryKey:['posts']})
+			queryClient.invalidateQueries({queryKey:['authUser']})
 			toast.success("Post was deleted!")
 		},
 		onError: ()=>{
@@ -45,7 +47,7 @@ const Post = ({ post, key }) => {
 	})
 
 	const handleDeletePost = () => {
-		deletePost(key)
+		deletePost(post.user._id)
 	};
 
 	const handlePostComment = (e) => {

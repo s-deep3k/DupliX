@@ -1,10 +1,38 @@
 import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
-import { USERS_FOR_RIGHT_PANEL } from "../../utils/db/dummy";
+import useFollow from "../../hooks/useFollow";
+import { useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import LoadingSpinner from "./LoadingSpinner";
 
 const RightPanel = () => {
-	const isLoading = true;
 
+	const {data:USERS_FOR_RIGHT_PANEL, isLoading, isPending}= useQuery({
+		queryKey: ['suggestedUsers'],
+		queryFn: async()=>{
+			try {
+				const res= await fetch('/api/v1/user/suggested')
+				const data = await res.json()
+				if(!res.ok) throw new Error(data.message || "Something Went Wrong with suggestions")
+				
+				return data
+			} catch (err) {
+				console.log(err.message);
+				toast.error(err.message)
+				
+			}
+		}
+	})
+
+	if(USERS_FOR_RIGHT_PANEL.length === 0)
+		return <div className="lg:block my-4 mx-2">
+
+		</div>
+
+	const handleFollow = (e)=>{
+		e.preventDefault()
+		useFollow()
+	}
 	return (
 		<div className='hidden lg:block my-4 mx-2'>
 			<div className='bg-[#16181C] p-4 rounded-md sticky top-2'>
@@ -42,9 +70,9 @@ const RightPanel = () => {
 								<div>
 									<button
 										className='btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm'
-										onClick={(e) => e.preventDefault()}
+										onClick={handleFollow}
 									>
-										Follow
+										{isPending ? <LoadingSpinner size='md'/> : 'Follow'}
 									</button>
 								</div>
 							</Link>
