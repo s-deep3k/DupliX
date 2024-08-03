@@ -7,32 +7,26 @@ import LoadingSpinner from "./LoadingSpinner";
 
 const RightPanel = () => {
 
-	const {data:USERS_FOR_RIGHT_PANEL, isLoading, isPending}= useQuery({
+	const {data:USERS_FOR_RIGHT_PANEL, isLoading, error}= useQuery({
 		queryKey: ['suggestedUsers'],
 		queryFn: async()=>{
 			try {
 				const res= await fetch('/api/v1/user/suggested')
 				const data = await res.json()
-				if(!res.ok) throw new Error(data.message || "Something Went Wrong with suggestions")
+				if(!res.ok) throw new Error(data.error || "Something Went Wrong with suggestions")
 				
 				return data
 			} catch (err) {
 				console.log(err.message);
-				toast.error(err.message)
-				
+				toast.error(error.message)
 			}
-		}
+		},
 	})
-
+	const {follow, isPending,} = useFollow()
 	if(USERS_FOR_RIGHT_PANEL.length === 0)
-		return <div className="lg:block my-4 mx-2">
-
+		return <div className="md:w-64 w-0">
 		</div>
 
-	const handleFollow = (e)=>{
-		e.preventDefault()
-		useFollow()
-	}
 	return (
 		<div className='hidden lg:block my-4 mx-2'>
 			<div className='bg-[#16181C] p-4 rounded-md sticky top-2'>
@@ -70,9 +64,13 @@ const RightPanel = () => {
 								<div>
 									<button
 										className='btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm'
-										onClick={handleFollow}
+										onClick={(e)=>{
+											e.preventDefault()
+											follow(user._id)
+										}}
+										key={user._id}
 									>
-										{isPending ? <LoadingSpinner size='md'/> : 'Follow'}
+										{isPending ? <LoadingSpinner size='sm'/> : 'Follow'}
 									</button>
 								</div>
 							</Link>

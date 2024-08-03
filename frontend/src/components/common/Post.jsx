@@ -7,21 +7,58 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Post = ({ post}) => {
 	const queryClient = useQueryClient()
 	const authUser = useQuery({queryKey:['authUser']})
-	const [comment, setComment] = useState("");
-	const postOwner = post.user;
-	const isLiked = false;
+	const {mutate: likePost, isPending:isLiking} = useMutation({
+		mutationFn: async(postId)=>{
+			try {
+				const res =  await fetch(`/api/v1/post/like/${postId}`, {
+					method: 'POST',
+				})
+				const data = await res.json()
+				if(!res.ok) throw new Error(data.error || 'Couldnt post comment')
 
-	const isMyPost = postOwner._id===authUser._id;
+				return data
+			} catch (err) {
+				console.log(err.message);
+				
+			}
+		},
+		onSuccess : ()=>{
+			toast.success('You liked a Post just now!')
+		},
+		onError : ()=>{
+			toast.error(error.message)
+		}
+	})
+	const {mutate: commentOnPost, isPending:isCommenting} = useMutation({
+		mutationFn: async(postId)=>{
+			try {
+				const res =  await fetch(`/api/v1/post/comment/${postId}`, {
+					method: 'POST',
+					headers: 'Content-Type: application/json',
+					body: JSON.stringify({comment})
+				})
+				const data = await res.json()
+				if(!res.ok) throw new Error(data.error || 'Couldnt post comment')
 
-	const formattedDate = "1h";
-
-	const isCommenting = false;
-
-	const {mutate: deletePost} = useMutation({
+				return data
+			} catch (err) {
+				console.log(err.message);
+				
+			}
+		},
+		onSuccess : ()=>{
+			toast.success('New Comment was posted by you just now!')
+		},
+		onError : ()=>{
+			toast.error(error.message)
+		}
+	})
+	const {mutate: deletePost, isPending:isDeleting} = useMutation({
 		mutationFn: async(id)=>{
 			try {
 				const res = await fetch(`/api/v1/post/${id}`,{
@@ -45,6 +82,14 @@ const Post = ({ post}) => {
 			toast.error("Post deletion failed!")
 		}
 	})
+	const [comment, setComment] = useState("");
+	const postOwner = post.user;
+	const isLiked = post.likes.length>0;
+
+	const isMyPost = postOwner._id===authUser._id;
+
+	const formattedDate = "1h";
+
 
 	const handleDeletePost = () => {
 		deletePost(post.user._id)
@@ -52,6 +97,8 @@ const Post = ({ post}) => {
 
 	const handlePostComment = (e) => {
 		e.preventDefault();
+		commentOnPost(post._id)
+		setComment("")
 	};
 
 	const handleLikePost = () => {};
@@ -76,7 +123,7 @@ const Post = ({ post}) => {
 						</span>
 						{isMyPost && (
 							<span className='flex justify-end flex-1'>
-								<FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />
+								{isDeleting?<LoadingSpinner size="md"/>:<FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />}
 							</span>
 						)}
 					</div>
