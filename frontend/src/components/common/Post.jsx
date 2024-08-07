@@ -27,8 +27,11 @@ const Post = ({ post}) => {
 				
 			}
 		},
-		onSuccess : ()=>{
-			toast.success('You liked a Post just now!')
+		onSuccess : (updatedData)=>{
+			
+			queryClient.setQueryData(oldData=>{
+				return [...oldData, ...updatedData]
+			})
 		},
 		onError : ()=>{
 			toast.error(error.message)
@@ -84,7 +87,7 @@ const Post = ({ post}) => {
 	})
 	const [comment, setComment] = useState("");
 	const postOwner = post.user;
-	const isLiked = post.likes.length>0;
+	const isLiked = post.likes.includes(authUser._id);
 
 	const isMyPost = postOwner._id===authUser._id;
 
@@ -101,7 +104,10 @@ const Post = ({ post}) => {
 		setComment("")
 	};
 
-	const handleLikePost = () => {};
+	const handleLikePost = () => {
+		if(isLiking) return
+		likePost(post._id)
+	};
 
 	return (
 		<>
@@ -207,10 +213,10 @@ const Post = ({ post}) => {
 								<span className='text-sm text-slate-500 group-hover:text-green-500'>0</span>
 							</div>
 							<div className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}>
-								{!isLiked && (
+								{!isLiked && !isLiking && (
 									<FaRegHeart className='w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500' />
 								)}
-								{isLiked && <FaRegHeart className='w-4 h-4 cursor-pointer text-pink-500 ' />}
+								{isLiked && !isLiking && <FaRegHeart className='w-4 h-4 cursor-pointer text-pink-500' fill="#ec4899"/>}
 
 								<span
 									className={`text-sm text-slate-500 group-hover:text-pink-500 ${

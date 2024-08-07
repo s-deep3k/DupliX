@@ -137,7 +137,9 @@ export const commentOnPost = async(req,res)=>{
     const post = await Post.findById(postId)
     if(!post)res.status(404).json({error: "No Such Post found."})
     if(text)
-    {}
+    {
+        await Post.findByIdAndUpdate(postId,{$push:{comments:text}})
+    }
 }
 
 export const likeUnlikePost = async(req,res)=>{
@@ -149,15 +151,20 @@ export const likeUnlikePost = async(req,res)=>{
         res.status(403).json({error: "You are not authorized to like/unlike a post!"})
     const post = await Post.findById(postId)
     if(!post)res.status(404).json({error: "No such post found !"})
-
+    let updatedLikes = post.likes
     if(post.likes.includes(userId))
     {//Unlike
         await Post.findByIdAndUpdate(postId,{$pull:{likes:userId}})
         await User.findByIdAndUpdate(userId,{$pull:{likedPosts:postId}})
+
+        updatedLikes = post.likes.filter(id=> id !== userId)
     }else{
         await Post.findByIdAndUpdate(postId,{$push:{likes:userId}})
-        await User.findByIdAndUpdate(userId,)
+        await User.findByIdAndUpdate(userId,{$push:{likedPosts:postId}})
+
+        updatedLikes = post.likes.concat(userId)
     }
+    res.status(200).json(updatedLikes)
 }
 
 export const deletePost = async(req,res)=>{
