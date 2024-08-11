@@ -27,10 +27,14 @@ const Post = ({ post}) => {
 				
 			}
 		},
-		onSuccess : (updatedData)=>{
-			
-			queryClient.setQueryData(oldData=>{
-				return [...oldData, ...updatedData]
+		onSuccess : (updatedLikes)=>{//updatedLikes backend theke ashche= line24 er data
+			toast.success("Post liked successfully!")
+			queryClient.setQueryData(["posts"],oldData=>{
+				// updates only the posts that are liked, instead of fetching all
+				return oldData.map(p=>{
+					if(p._id === post._id)
+						return {...p, likes:updatedLikes}
+				})
 			})
 		},
 		onError : ()=>{
@@ -100,6 +104,10 @@ const Post = ({ post}) => {
 
 	const handlePostComment = (e) => {
 		e.preventDefault();
+		if(comment===''){
+			toast.error("Empty Comment cannot be posted!")
+			return
+		}
 		commentOnPost(post._id)
 		setComment("")
 	};
@@ -217,10 +225,10 @@ const Post = ({ post}) => {
 									<FaRegHeart className='w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500' />
 								)}
 								{isLiked && !isLiking && <FaRegHeart className='w-4 h-4 cursor-pointer text-pink-500' fill="#ec4899"/>}
-
+								{isLiking && <LoadingSpinner size="sm"/>}
 								<span
-									className={`text-sm text-slate-500 group-hover:text-pink-500 ${
-										isLiked ? "text-pink-500" : ""
+									className={`text-sm group-hover:text-pink-500 ${
+										isLiked ? "text-pink-500" : "text-slate-500"
 									}`}
 								>
 									{post.likes.length}

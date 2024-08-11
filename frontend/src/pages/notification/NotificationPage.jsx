@@ -4,10 +4,47 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { useEffect } from "react";
 
 const NotificationPage = () => {
-	const isLoading = false;
-	const notifications = [
+	const {data:notifications, isLoading, refetch} = useQuery({
+		queryKey: ['notifications'],
+		queryFn: async()=>{
+			try{
+			const res = await fetch('/api/v1/notification')
+			const data = await res.json()
+			if(!res.ok)
+				throw new Error(data.error || "Something wrong !")
+		}catch(err){
+			console.log(err.message);
+			toast.error("Oops! Couldnt fetch Notifications ")
+		}
+		},
+	})
+
+	const {mutate:deleteAll, isPending: isDeleting} = useMutation({
+		mutationFn: async()=>{
+			try{
+				const res = await fetch('/api/v1/notification',{
+					method:"DELETE"
+				})
+				const data = await res.json()
+				if(!res.ok)
+					throw new Error(data.error || "Something wrong !")
+			}catch(err){
+				console.log(err.message);
+			}
+		},
+		onSuccess: ()=>{
+			toast.success("All Notifications Deleted !")
+		},
+		onError: ()=>{
+			toast.error("Oops! Couldnt delete Notifications ")
+		}
+	})
+	const notifications1 = [
 		{
 			_id: "1",
 			from: {
@@ -27,9 +64,11 @@ const NotificationPage = () => {
 			type: "like",
 		},
 	];
+	// useEffect(()=>{
 
+	// },[])
 	const deleteNotifications = () => {
-		alert("All notifications deleted");
+		deleteAll()
 	};
 
 	return (
@@ -51,7 +90,7 @@ const NotificationPage = () => {
 						</ul>
 					</div>
 				</div>
-				{isLoading && (
+				{(isLoading || isDeleting) && (
 					<div className='flex justify-center h-full items-center'>
 						<LoadingSpinner size='lg' />
 					</div>

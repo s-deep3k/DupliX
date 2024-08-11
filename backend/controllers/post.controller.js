@@ -1,6 +1,7 @@
 import {v2 as cloudinary} from 'cloudinary'
 import Post from '../models/post.model.js'
 import User from '../models/user.model.js'
+import Notification from '../models/notification.model.js'
 
 
 export const getAllPosts = async(req,res)=>{
@@ -145,26 +146,37 @@ export const commentOnPost = async(req,res)=>{
 export const likeUnlikePost = async(req,res)=>{
     const postId = req.params.id
     const userId = req.user._id
-
+    try{
     const user = await User.findById(userId)
         if(!user)
         res.status(403).json({error: "You are not authorized to like/unlike a post!"})
     const post = await Post.findById(postId)
     if(!post)res.status(404).json({error: "No such post found !"})
-    let updatedLikes = post.likes
     if(post.likes.includes(userId))
     {//Unlike
         await Post.findByIdAndUpdate(postId,{$pull:{likes:userId}})
         await User.findByIdAndUpdate(userId,{$pull:{likedPosts:postId}})
 
-        updatedLikes = post.likes.filter(id=> id !== userId)
+       const updatedLikes = post.likes.filter(id=> id.toString() !== userId.toString())
+       res.status(200).json(updatedLikes)
     }else{
-        await Post.findByIdAndUpdate(postId,{$push:{likes:userId}})
-        await User.findByIdAndUpdate(userId,{$push:{likedPosts:postId}})
+        //await Post.findByIdAndUpdate(postId,{$push:{likes:userId}})
+        post.likes.push(userId)
+        await User.updateOne({_id: userId},{$push:{likedPosts:postId}})
+        await post.save()
 
-        updatedLikes = post.likes.concat(userId)
+        const notification = new Notification({
+            from: userId,
+            to: post.user,
+            type:"LIKE"
+        })
+        await notification.save()
     }
-    res.status(200).json(updatedLikes)
+}catch(err){
+    console.log("Error from Like unlike post ctrller");
+    res.status(500).json({error: "Internal Server Error"})
+    
+}
 }
 
 export const deletePost = async(req,res)=>{
