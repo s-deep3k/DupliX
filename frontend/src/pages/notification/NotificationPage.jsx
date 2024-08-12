@@ -17,6 +17,7 @@ const NotificationPage = () => {
 			const data = await res.json()
 			if(!res.ok)
 				throw new Error(data.error || "Something wrong !")
+			return data
 		}catch(err){
 			console.log(err.message);
 			toast.error("Oops! Couldnt fetch Notifications ")

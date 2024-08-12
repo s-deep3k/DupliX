@@ -120,7 +120,7 @@ export const followUnfollowUser = async (req,res)=>{
        const newNotification = new Notification({
         type:"FOLLOW",
         from: req.user._id,
-        to: userToFollow.id
+        to: userToFollow._id
     })
     await newNotification.save()
 // TODO: return the id of user as response

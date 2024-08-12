@@ -36,6 +36,7 @@ const Post = ({ post}) => {
 						return {...p, likes:updatedLikes}
 				})
 			})
+			queryClient.invalidateQueries({queryKey:["notifications"]})
 		},
 		onError : ()=>{
 			toast.error(error.message)

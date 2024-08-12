@@ -19,6 +19,7 @@ const useFollow = () => {
     onSuccess : ()=>{
       Promise.all([
         queryclient.invalidateQueries({queryKey:['suggestedUsers']}),
+        queryClient.invalidateQueries({queryKey:["notifications"]}),
         queryclient.invalidateQueries({queryKey:['authUser']})
       ])
       toast.success("Follow / Unfollow successful!")
