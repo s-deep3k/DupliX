@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 
 import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
@@ -12,34 +12,53 @@ import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
 	const [profileImg, setProfileImg] = useState(null);
 	const [feedType, setFeedType] = useState("posts");
+	
+	const username = useParams()
 
-	const {data, refetch, isLoading} = useQuery({
-		queryKey:['profile']
+	const {data:user, refetch,isRefetching, isLoading} = useQuery({
+		queryKey:['profile'],
+		queryFn: async()=>{
+			try {
+				const res = await fetch(`api/user/profile/${username}`)
+				const data = await res.json()
+				if(!res.ok)throw new Error(data.error || 'Something went Wrong')
+				
+				return data
+			} catch (error) {
+				console.log(error.message);
+				toast.error(error.message)
+				
+			}
+		}
+
 	})
-
-
+	
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
+	
+	useEffect(()=>{refetch()},
+	[username])
 
 //	const isLoading = false;
-	const isMyProfile = authUser._id === true;
+	const isMyProfile = authUser._id === user._id;
 
-	const user = {
-		_id: "1",
-		fullName: "John Doe",
-		username: "johndoe",
-		profileImg: "/avatars/boy2.png",
-		coverImg: "/cover.png",
-		bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-		link: "https://youtube.com/@asaprogrammer_",
-		following: ["1", "2", "3"],
-		followers: ["1", "2", "3"],
-	};
+	// const user = {
+	// 	_id: "1",
+	// 	fullName: "John Doe",
+	// 	username: "johndoe",
+	// 	profileImg: "/avatars/boy2.png",
+	// 	coverImg: "/cover.png",
+	// 	bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+	// 	link: "https://youtube.com/@asaprogrammer_",
+	// 	following: ["1", "2", "3"],
+	// 	followers: ["1", "2", "3"],
+	// };
 
 	const handleImgChange = (e, state) => {
 		const file = e.target.files[0];
