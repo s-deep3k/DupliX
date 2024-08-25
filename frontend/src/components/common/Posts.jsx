@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
 
-const Posts = ({feedType, username, }) => {
+const Posts = ({feedType, username, userId }) => {
 
 	const getPostEndpoint = ()=>{
 		switch (feedType) {
@@ -38,7 +38,7 @@ const Posts = ({feedType, username, }) => {
 
 	useEffect(()=>{
 		refetch()
-	},[feedType])
+	},[feedType, username, refetch])
 
 	return (
 		<>

@@ -1,7 +1,7 @@
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 const useFollow = () => {
-  const queryclient = useQueryClient()
+  const queryClient = useQueryClient()
   const {mutate: follow, isPending, error, } = useMutation({
     mutationFn: async(id)=>{
       try {
@@ -18,9 +18,9 @@ const useFollow = () => {
     },
     onSuccess : ()=>{
       Promise.all([
-        queryclient.invalidateQueries({queryKey:['suggestedUsers']}),
+        queryClient.invalidateQueries({queryKey:['suggestedUsers']}),
         queryClient.invalidateQueries({queryKey:["notifications"]}),
-        queryclient.invalidateQueries({queryKey:['authUser']})
+        queryClient.invalidateQueries({queryKey:['authUser']})
       ])
       toast.success("Follow / Unfollow successful!")
     },

@@ -11,15 +11,20 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { formatMemberSinceDate } from "../../utils/date";
+import useFollow from "../../hooks/useFollow";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
 	const [profileImg, setProfileImg] = useState(null);
 	const [feedType, setFeedType] = useState("posts");
+	const {follow, isPending} = useFollow()
 	
 	const username = useParams()
+
+	const {authUser} = useQuery({queryKey:['authUser']})
 
 	const {data:user, refetch,isRefetching, isLoading} = useQuery({
 		queryKey:['profile'],
@@ -38,15 +43,21 @@ const ProfilePage = () => {
 		}
 
 	})
+	const {mutate: updateDP_CP, isPending: isUpdating} = useMutation({
+		mutationFn: async()=>{
+
+		}
+	})
+
+	const memberSince = formatMemberSinceDate(user?.createdAt)
 	
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
-	
 	useEffect(()=>{refetch()},
 	[username])
 
-//	const isLoading = false;
-	const isMyProfile = authUser._id === user._id;
+	const isMyProfile = authUser?._id === user?._id;
+	const amIFollowing = authUser?.following.includes(user?._id)
 
 	// const user = {
 	// 	_id: "1",
@@ -76,10 +87,10 @@ const ProfilePage = () => {
 		<>
 			<div className='flex-[4_4_0]  border-r border-gray-700 min-h-screen '>
 				{/* HEADER */}
-				{isLoading && <ProfileHeaderSkeleton />}
-				{!isLoading && !user && <p className='text-center text-lg mt-4'>User not found</p>}
+				{(isLoading || isRefetching) && <ProfileHeaderSkeleton />}
+				{!isLoading && isRefetching && !user && <p className='text-center text-lg mt-4'>User not found</p>}
 				<div className='flex flex-col'>
-					{!isLoading && user && (
+					{!isLoading && !isRefetching && user && (
 						<>
 							<div className='flex gap-10 px-4 py-2 items-center'>
 								<Link to='/'>
@@ -140,9 +151,11 @@ const ProfilePage = () => {
 								{!isMyProfile && (
 									<button
 										className='btn btn-outline rounded-full btn-sm'
-										onClick={() => alert("Followed successfully")}
+										onClick={() => follow(user?.id)}
 									>
-										Follow
+										{isPending && 'Loading....'}
+										{!isPending && amIFollowing && 'Unfollow'}
+										{!isPending && !amIFollowing && 'Follow'}
 									</button>
 								)}
 								{(coverImg || profileImg) && (
@@ -180,7 +193,7 @@ const ProfilePage = () => {
 									)}
 									<div className='flex gap-2 items-center'>
 										<IoCalendarOutline className='w-4 h-4 text-slate-500' />
-										<span className='text-sm text-slate-500'>Joined July 2024</span>
+										<span className='text-sm text-slate-500'>{memberSince}</span>
 									</div>
 								</div>
 								<div className='flex gap-2'>
@@ -217,7 +230,7 @@ const ProfilePage = () => {
 						</>
 					)}
 
-					<Posts />
+					<Posts feedType={feedType} username={username} userId={user?._id}/>
 				</div>
 			</div>
 		</>
