@@ -11,7 +11,7 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow";
@@ -20,11 +20,12 @@ const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
 	const [profileImg, setProfileImg] = useState(null);
 	const [feedType, setFeedType] = useState("posts");
+	const queryClient = useQueryClient()
 	const {follow, isPending} = useFollow()
 	
 	const username = useParams()
 
-	const {authUser} = useQuery({queryKey:['authUser']})
+	const {data:authUser} = useQuery({queryKey:['authUser']})
 
 	const {data:user, refetch,isRefetching, isLoading} = useQuery({
 		queryKey:['profile'],
@@ -44,8 +45,27 @@ const ProfilePage = () => {
 
 	})
 	const {mutate: updateDP_CP, isPending: isUpdating} = useMutation({
-		mutationFn: async()=>{
-
+		mutationFn: async({profileImg, coverImg})=>{
+			try {
+				const res = await fetch(`/api/profile/update`,{
+					method: 'POST',
+					headers: 
+					{'Content-Type':'application/json'},
+					body: JSON.stringify({profileImg, coverImg})
+				})
+				const data = await res.json()
+				if(!res.ok) throw new Error(data.error || "Something is Wrong!")
+				return data
+			} catch (error) {
+				toast.error("Couldnot update profile image/ cover Image")
+				console.log(error.message);
+			}
+		},
+		onSuccess: ()=>{
+			Promise.all(
+				queryClient.invalidateQueries(['authUser']),
+				queryClient.invalidateQueries(['profile'])
+			)
 		}
 	})
 
@@ -54,7 +74,7 @@ const ProfilePage = () => {
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
 	useEffect(()=>{refetch()},
-	[username])
+	[username,refetch])
 
 	const isMyProfile = authUser?._id === user?._id;
 	const amIFollowing = authUser?.following.includes(user?._id)
@@ -161,9 +181,9 @@ const ProfilePage = () => {
 								{(coverImg || profileImg) && (
 									<button
 										className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
-										onClick={() => alert("Profile updated successfully")}
+										onClick={() => updateDP_CP({profileImg,coverImg})}
 									>
-										Update
+										{isUpdating ?'Updating....':'Update'}
 									</button>
 								)}
 							</div>

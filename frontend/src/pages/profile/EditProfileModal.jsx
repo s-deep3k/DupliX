@@ -10,7 +10,30 @@ const EditProfileModal = () => {
 		newPassword: "",
 		currentPassword: "",
 	});
-
+	const {mutate: updateProfileDetails, isPending: isUpdating} = useMutation({
+		mutationFn: async(formData)=>{
+			try {
+				const res = await fetch(`/api/profile/update`,{
+					method: 'POST',
+					headers: 
+					{'Content-Type':'application/json'},
+					body: JSON.stringify(formData)
+				})
+				const data = await res.json()
+				if(!res.ok) throw new Error(data.error || "Something is Wrong!")
+				return data
+			} catch (error) {
+				toast.error("Failed to update profile details")
+				console.log(error.message);
+			}
+		},
+		onSuccess: ()=>{
+			Promise.all(
+				queryClient.invalidateQueries(['authUser']),
+				queryClient.invalidateQueries(['profile'])
+			)
+		}
+	})
 	const handleInputChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
@@ -30,7 +53,7 @@ const EditProfileModal = () => {
 						className='flex flex-col gap-4'
 						onSubmit={(e) => {
 							e.preventDefault();
-							alert("Profile updated successfully");
+							updateProfileDetails(formData);
 						}}
 					>
 						<div className='flex flex-wrap gap-2'>
