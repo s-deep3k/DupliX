@@ -15,12 +15,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow";
+import useUpdateProfile from "../../hooks/useUpdateProfile";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
 	const [profileImg, setProfileImg] = useState(null);
 	const [feedType, setFeedType] = useState("posts");
-	const queryClient = useQueryClient()
 	const {follow, isPending} = useFollow()
 	
 	const username = useParams()
@@ -44,35 +44,13 @@ const ProfilePage = () => {
 		}
 
 	})
-	const {mutate: updateDP_CP, isPending: isUpdating} = useMutation({
-		mutationFn: async({profileImg, coverImg})=>{
-			try {
-				const res = await fetch(`/api/profile/update`,{
-					method: 'POST',
-					headers: 
-					{'Content-Type':'application/json'},
-					body: JSON.stringify({profileImg, coverImg})
-				})
-				const data = await res.json()
-				if(!res.ok) throw new Error(data.error || "Something is Wrong!")
-				return data
-			} catch (error) {
-				toast.error("Couldnot update profile image/ cover Image")
-				console.log(error.message);
-			}
-		},
-		onSuccess: ()=>{
-			Promise.all(
-				queryClient.invalidateQueries(['authUser']),
-				queryClient.invalidateQueries(['profile'])
-			)
-		}
-	})
+	const {updateProfileDetails, isUpdating} = useUpdateProfile() 
 
 	const memberSince = formatMemberSinceDate(user?.createdAt)
 	
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
+
 	useEffect(()=>{refetch()},
 	[username,refetch])
 
@@ -167,7 +145,7 @@ const ProfilePage = () => {
 								</div>
 							</div>
 							<div className='flex justify-end px-4 mt-5'>
-								{isMyProfile && <EditProfileModal />}
+								{isMyProfile && <EditProfileModal authUser={authUser}/>}
 								{!isMyProfile && (
 									<button
 										className='btn btn-outline rounded-full btn-sm'
@@ -181,7 +159,11 @@ const ProfilePage = () => {
 								{(coverImg || profileImg) && (
 									<button
 										className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
-										onClick={() => updateDP_CP({profileImg,coverImg})}
+										onClick={async() => {
+											await updateProfileDetails({profileImg,coverImg})
+											setProfileImg(null)
+											setCoverImg(null)
+										}}
 									>
 										{isUpdating ?'Updating....':'Update'}
 									</button>

@@ -1,6 +1,7 @@
 import { useState } from "react";
+import useUpdateProfile from "../../hooks/useUpdateProfile";
 
-const EditProfileModal = () => {
+const EditProfileModal = ({authUser}) => {
 	const [formData, setFormData] = useState({
 		fullName: "",
 		username: "",
@@ -10,30 +11,7 @@ const EditProfileModal = () => {
 		newPassword: "",
 		currentPassword: "",
 	});
-	const {mutate: updateProfileDetails, isPending: isUpdating} = useMutation({
-		mutationFn: async(formData)=>{
-			try {
-				const res = await fetch(`/api/profile/update`,{
-					method: 'POST',
-					headers: 
-					{'Content-Type':'application/json'},
-					body: JSON.stringify(formData)
-				})
-				const data = await res.json()
-				if(!res.ok) throw new Error(data.error || "Something is Wrong!")
-				return data
-			} catch (error) {
-				toast.error("Failed to update profile details")
-				console.log(error.message);
-			}
-		},
-		onSuccess: ()=>{
-			Promise.all(
-				queryClient.invalidateQueries(['authUser']),
-				queryClient.invalidateQueries(['profile'])
-			)
-		}
-	})
+	const {updateProfileDetails, isUpdating} = useUpdateProfile()
 	const handleInputChange = (e) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
 	};
@@ -42,7 +20,18 @@ const EditProfileModal = () => {
 		<>
 			<button
 				className='btn btn-outline rounded-full btn-sm'
-				onClick={() => document.getElementById("edit_profile_modal").showModal()}
+				onClick={() => {
+					document.getElementById("edit_profile_modal").showModal()
+					setFormData({
+						fullName: authUser?.fullName,
+						username: authUser?.username,
+						email: authUser?.email,
+						bio: authUser?.bio,
+						link: authUser?.link,
+						newPassword: "",
+						currentPassword: "",
+					})
+				}}
 			>
 				Edit profile
 			</button>
@@ -117,7 +106,9 @@ const EditProfileModal = () => {
 							name='link'
 							onChange={handleInputChange}
 						/>
-						<button className='btn btn-primary rounded-full btn-sm text-white'>Update</button>
+						<button className='btn btn-primary rounded-full btn-sm text-white'>
+							{isUpdating?'Updating...':'Update'}
+							</button>
 					</form>
 				</div>
 				<form method='dialog' className='modal-backdrop'>
