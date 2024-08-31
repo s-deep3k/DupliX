@@ -17,31 +17,30 @@ const LoginPage = () => {
 	const {mutate: loginMutation, error, isError, isPending} = useMutation({
 		mutationFn: async({username, password})=>{
 			try {
-				const res = await fetch('/api/v1/auth/signup',{
+				const res = await fetch('/api/v1/auth/signin',{
 					method:'POST',
 					headers:{'Content-Type':'application/json'},
 					body: JSON.stringify({username, password})
 				})
 				const data = await res.json()
-				if(!res.ok) throw new Error(data.message || 'Failed to fetch account')
-				return data
+				if(!res.ok) throw new Error(data.error || 'Failed to fetch account')
 			} catch (error) {
-				toast.error(error.message)	
-				console.error(error.message);
-					
+				throw new Error(error.message)	
 			}
 		},
 		onSuccess: ()=>{
-			toast.success("Signup Successful!")
+			toast.success("Sign In Successful!")
 			queryClient.invalidateQueries({queryKey:['authUser']})
 		},
 		onError: ()=>{
-			toast.error(error.message)
+			toast.error(error.message)	
+			console.error(error.message);
 		}
 	})
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		console.log(formData);
+		console.log(isError , error);
 		loginMutation(formData)
 	};
 

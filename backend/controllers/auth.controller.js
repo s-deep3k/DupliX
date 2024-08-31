@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs"
 
 export const signup = async(req,res)=>{
     try{
-        const {fullname, username,email, password} = req.body
-        console.log({fullname,username,email,password});
-        const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+        const {fullName, username,email, password} = req.body
+        console.log({fullName,username,email,password});
+        const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g
     
         if(!emailRegex.test(email))
             return res.status(400).json({error:"Invalid Email Format"})
@@ -25,7 +25,7 @@ export const signup = async(req,res)=>{
 
         const newUser = new User({
             email,
-            fullname,
+            fullName,
             username,
             password:hashedPass,
         })
@@ -37,7 +37,7 @@ export const signup = async(req,res)=>{
                 id: newUser._id,
                 username: newUser.username,
                 email: newUser.email,
-                fullname: newUser.fullname,
+                fullName: newUser.fullName,
                 bio: newUser.bio,
                 profileImg: newUser.profileImg,
                 coverImg: newUser.coverImg,
@@ -55,13 +55,30 @@ export const signup = async(req,res)=>{
         res.status(400).json({error: "Error from signup contrlr"})
     }
 }
-export const signin = (req,res)=>{
-    const {username,password} = req.body
-    const user= User.find({username})
-    if(!user) console.log("No User with that username!");
-
+export const signin = async(req,res)=>{
+    try {
+        const {username,password} = req.body
+        const user=await User.findOne({username})
+        const isPasswordCorrect = await bcrypt.compare(password, user?.password || "")
+        if(!user || !isPasswordCorrect)
+            res.status(400).json({error:"Invalid username or password"}) 
     
-    res.send()
+        generateTokenAndSetCookie(user._id, res)
+        res.status(200).json({
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            fullName: user.fullName,
+            bio: user.bio,
+            profileImg: user.profileImg,
+            coverImg: user.coverImg,
+            followers: user.followers,
+            following: user.following
+        })
+    } catch (error) {
+        console.log("Error in login controller", error.message);
+        res.status(500).json({error:"Internal Server Error"})
+    }
 }
 export const logout = (req,res)=>{
     try{
@@ -76,8 +93,17 @@ export const logout = (req,res)=>{
     }
 }
 
-export const getMe = (req,res)=>{
-    if(!req.user)
-        res.status(403).json({error:"Authentication Error. Sign up or Login First!"})
-    res.json({user:req.user})
+export const getMe = async(req,res)=>{
+    try{
+    const user = await User.findById(req.user._id).select("-password");
+    console.log(user, "From Get Me");
+    
+    if(!user)
+        res.status(403).json({error:"Authentication Error.Couldnt Fetch Your Profile! Sign up or Login First!"})
+    res.status(200).json(user)
+    }catch(err){
+        console.log("Error in getMe ctrler",err.message);
+        //res.status(500).json({error: "Internal Server Error"})
+        
+    }
 }

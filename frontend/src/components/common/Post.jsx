@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 
 const Post = ({ post}) => {
+	const [comment, setComment] = useState("");
 	const queryClient = useQueryClient()
 	const authUser = useQuery({queryKey:['authUser']})
 	const {mutate: likePost, isPending:isLiking} = useMutation({
@@ -90,11 +91,11 @@ const Post = ({ post}) => {
 			toast.error("Post deletion failed!")
 		}
 	})
-	const [comment, setComment] = useState("");
+	
 	const postOwner = post.user;
-	const isLiked = post.likes.includes(authUser._id);
+	const isLiked = post.likes.includes(authUser?._id);
 
-	const isMyPost = postOwner._id===authUser._id;
+	const isMyPost = postOwner._id===authUser?._id;
 
 	const formattedDate = "1h";
 

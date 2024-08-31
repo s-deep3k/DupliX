@@ -30,14 +30,16 @@ const SignUpPage = () => {
 				if(!res.ok) throw Error(error.message || 'Failed to fetch account')
 				return data
 			} catch (error) {
-				toast.error(error.message)	
-				console.log(error.message);
+				throw new Error(error.message)
 					
 			}
 		},
 		onSuccess: ()=>{
 			toast.success("Signup Successful!")
 			queryClient.invalidateQueries({queryKey:['authUser']})
+		},
+		onError:()=>{
+			toast.error(error.message)
 		}
 	})
 

@@ -11,7 +11,7 @@ const useFollow = () => {
         const data = res.json()
         if(!res.ok) throw new Error(data.error || "Follow/Unfollow unsuccessful!")
 
-        return {follow, isPending}
+      return;
       } catch (err) {
         console.log(err.message);
       }
@@ -28,6 +28,7 @@ const useFollow = () => {
       toast.error(error.message)
     }
   })
+  return {follow,isPending}
 }
 
 export default useFollow

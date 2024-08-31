@@ -20,7 +20,7 @@ export const getUserProfile = async (req,res)=>{
 export const updateUserProfile = async (req,res)=>{
     try
     {
-    const {fullname, username, newPassword, currentPassword, email} = req.body
+    const {fullName, username, newPassword, currentPassword, email} = req.body
     let {coverImg, profileImg} = req.body
 
     const userId = req.user._id
@@ -52,7 +52,7 @@ export const updateUserProfile = async (req,res)=>{
             profileImg = uploadedResponse.secure_url
         }   
 
-        user.fullname = fullname || user.fullname
+        user.fullName = fullName || user.fullName
         user.username = username || user.username
         user.email = email || user.email
         user.coverImg = coverImg || user.coverImg

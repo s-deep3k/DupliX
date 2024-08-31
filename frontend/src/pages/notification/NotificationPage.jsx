@@ -45,29 +45,10 @@ const NotificationPage = () => {
 			toast.error("Oops! Couldnt delete Notifications ")
 		}
 	})
-	const notifications1 = [
-		{
-			_id: "1",
-			from: {
-				_id: "1",
-				username: "johndoe",
-				profileImg: "/avatars/boy2.png",
-			},
-			type: "follow",
-		},
-		{
-			_id: "2",
-			from: {
-				_id: "2",
-				username: "janedoe",
-				profileImg: "/avatars/girl1.png",
-			},
-			type: "like",
-		},
-	];
-	// useEffect(()=>{
-
-	// },[])
+	
+	useEffect(()=>{
+		refetch()
+	},[refetch, deleteAll])
 	const deleteNotifications = () => {
 		deleteAll()
 	};

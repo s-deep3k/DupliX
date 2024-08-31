@@ -8,13 +8,9 @@ import toast from "react-hot-toast";
 const CreatePost = () => {
 	const [text, setText] = useState("");
 	const [img, setImg] = useState(null);
-
-	const imgRef = useRef(null);
 	const queryClient = useQueryClient()
 
-	// const data = {
-	// 	profileImg: "/avatars/boy1.png",
-	// };
+	const imgRef = useRef(null);
 
 	const {mutate:createPost, isPending, isError, error} = useMutation({
 		mutationFn: async({text,img})=>{

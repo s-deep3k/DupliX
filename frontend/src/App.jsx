@@ -19,9 +19,11 @@ const App = ()=> {
 			const data = await res.json()
 			if(data.error) return null
 			if(!res.ok) throw Error(data.error || 'Something wrong happened!')
+			return data
 		},
 		retry: false
 	})
+	console.log('authUser is here:', authUser);
 	if(isLoading)
 	{
 		return (
@@ -31,7 +33,6 @@ const App = ()=> {
 		)
 	}
 
-	console.log('authUser is here:', authUser);
 	
 	return (
 		<div className='flex max-w-6xl mx-auto'>

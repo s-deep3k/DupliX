@@ -12,7 +12,7 @@ const useUpdateProfile = () => {
 				})
 				const data = await res.json()
 				if(!res.ok) throw new Error(data.error || "Something is Wrong!")
-				return {updateProfileDetails, isUpdating}
+				return ;
 			} catch (error) {
 				toast.error("Failed to update profile details")
 				console.log(error.message);
@@ -25,6 +25,7 @@ const useUpdateProfile = () => {
 			)
 		}
 	})
+	return {updateProfileDetails,isUpdating}
 }
 
 export default useUpdateProfile

@@ -22,7 +22,7 @@ const RightPanel = () => {
 			}
 		},
 	})
-	const {follow, isPending,} = useFollow()
+	const {follow, isPending} = useFollow()
 	if(USERS_FOR_RIGHT_PANEL.length === 0)
 		return <div className="md:w-64 w-0">
 		</div>

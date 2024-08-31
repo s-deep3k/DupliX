@@ -11,7 +11,7 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {useQuery,} from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow";
@@ -45,14 +45,14 @@ const ProfilePage = () => {
 
 	})
 	const {updateProfileDetails, isUpdating} = useUpdateProfile() 
-
-	const memberSince = formatMemberSinceDate(user?.createdAt)
 	
-	const coverImgRef = useRef(null);
-	const profileImgRef = useRef(null);
-
 	useEffect(()=>{refetch()},
 	[username,refetch])
+	const coverImgRef = useRef(null);
+	const profileImgRef = useRef(null);
+	const memberSince = formatMemberSinceDate(user?.createdAt)
+	
+
 
 	const isMyProfile = authUser?._id === user?._id;
 	const amIFollowing = authUser?.following.includes(user?._id)

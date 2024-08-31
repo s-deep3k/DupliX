@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 
 const Sidebar = () => {
 	const queryClient = useQueryClient()
+	const {data:authUser} = useQuery({queryKey:['authUser']}) //Fetch logged in user
 	const {mutate:logout} = useMutation({
 		mutationFn: async()=>{
 			const res = await fetch('/api/v1/auth/logout')
@@ -24,7 +25,6 @@ const Sidebar = () => {
 			toast.error('Logout Failed!')
 		}
 	})
-	const {data:authUser} = useQuery({queryKey:['authUser']}) //Fetch logged in user
 	
 	const data = {
 		fullName: "John Doe",
@@ -70,7 +70,7 @@ const Sidebar = () => {
 				</ul>
 				{data && (
 					<Link
-						to={`/profile/${authUser.username}`}
+						to={`/profile/${authUser?.username}`}
 						className='mt-auto mb-10 flex gap-2 items-start transition-all duration-300 hover:bg-[#181818] py-2 px-4 rounded-full'
 					>
 						<div className='avatar hidden md:inline-flex'>
