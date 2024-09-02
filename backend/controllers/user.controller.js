@@ -75,7 +75,7 @@ export const suggestedProfiles = async (req,res)=>{
 
         const usersFollowedByMe = await User.findById(userId).select("following")
         // getting 10 users who are not me.
-        const users = User.aggregate([
+        const users =await User.aggregate([
             {
                 $match:{
                     _id: {$ne: userId}
@@ -86,7 +86,8 @@ export const suggestedProfiles = async (req,res)=>{
         //filtering out users that I dont follow
         const filteredUsers = users.filter(user=> !usersFollowedByMe.following.includes(user._id))
         //taking just 4 out of the unfollowed users
-        const suggestedUsers = filteredUsers.splice(0,4).forEach(user=>user.password=null)
+        const suggestedUsers = filteredUsers.slice(0,4)
+        suggestedUsers.forEach(user=>user.password=null)
 
         res.status(200).json(suggestedUsers)
 

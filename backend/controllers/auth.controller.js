@@ -96,7 +96,7 @@ export const logout = (req,res)=>{
 export const getMe = async(req,res)=>{
     try{
     const user = await User.findById(req.user._id).select("-password");
-    console.log(user, "From Get Me");
+    console.log(user.fullName, "From Get Me");
     
     if(!user)
         res.status(403).json({error:"Authentication Error.Couldnt Fetch Your Profile! Sign up or Login First!"})

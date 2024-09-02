@@ -9,6 +9,6 @@ authRouter.get('/profile/me',protectRoute, getMe)
 
 authRouter.post("/signin",signin)
 
-authRouter.post("/logout",logout)
+authRouter.get("/logout",logout)
 
 export default authRouter

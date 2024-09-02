@@ -7,22 +7,25 @@ import LoadingSpinner from "./LoadingSpinner";
 
 const RightPanel = () => {
 
-	const {data:USERS_FOR_RIGHT_PANEL, isLoading, error}= useQuery({
+	const {data, isLoading}= useQuery({
 		queryKey: ['suggestedUsers'],
 		queryFn: async()=>{
 			try {
-				const res= await fetch('/api/v1/user/suggested')
+				const res = await fetch('/api/v1/user/suggested')
 				const data = await res.json()
 				if(!res.ok) throw new Error(data.error || "Something Went Wrong with suggestions")
 				
 				return data
 			} catch (err) {
 				console.log(err.message);
-				toast.error(error.message)
+				toast.error(err.message)
 			}
 		},
 	})
 	const {follow, isPending} = useFollow()
+	const USERS_FOR_RIGHT_PANEL = []
+	console.log(USERS_FOR_RIGHT_PANEL);
+	
 	if(USERS_FOR_RIGHT_PANEL.length === 0)
 		return <div className="md:w-64 w-0">
 		</div>

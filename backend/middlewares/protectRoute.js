@@ -14,7 +14,7 @@ export const protectRoute =async (req,res,next)=>{
         if(!user) res.status(401).json({error:"No User Found!"})
         
         req.user = user
-        console.log("Protected Route success ,",user);
+        console.log("Protected Route success ,",user.fullName);
         
         next()
     } catch (error) {
