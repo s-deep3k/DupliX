@@ -4,7 +4,7 @@ import { followUnfollowUser, getUserProfile, suggestedProfiles, updateUserProfil
 
 const userRouter = Router()
 
-userRouter.post("/profile/:username",protectRoute,getUserProfile)
+userRouter.get("/profile/:username",protectRoute,getUserProfile)
 userRouter.get("/suggested",protectRoute,suggestedProfiles)
 userRouter.post("/follow/:id",protectRoute,followUnfollowUser)
 userRouter.post("/profile/update",protectRoute,updateUserProfile)

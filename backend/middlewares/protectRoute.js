@@ -20,6 +20,6 @@ export const protectRoute =async (req,res,next)=>{
     } catch (error) {
         console.log(error.message ," Error from protection Route"
         );
-        res.status(500).json({error:"Internal Server Error"})
+        //res.status(500).json({error:"Internal Server Error"})
     }
 }

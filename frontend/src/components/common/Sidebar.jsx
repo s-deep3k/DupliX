@@ -13,9 +13,14 @@ const Sidebar = () => {
 	const {data:authUser} = useQuery({queryKey:['authUser']}) //Fetch logged in user
 	const {mutate:logout} = useMutation({
 		mutationFn: async()=>{
-			const res = await fetch('/api/v1/auth/logout')
-			const data = await res.json()
-			if(!res.ok) throw Error(data.error || 'Something Wrong occured!')
+			try {
+				const res = await fetch('/api/v1/auth/logout')
+				const data = await res.json()
+				if(!res.ok) throw new Error(data.error || 'Something Wrong occured!')
+				
+			} catch (error) {
+				throw new Error(error.message)
+			}
 		},
 		onSuccess: ()=>{
 			toast.success('Logout Successful!')
@@ -83,7 +88,7 @@ const Sidebar = () => {
 								<p className='text-white font-bold text-sm w-20 truncate'>{authUser?.fullName}</p>
 								<p className='text-slate-500 text-sm'>@{authUser?.username}</p>
 							</div>
-							<BiLogOut className='w-5 h-5 cursor-pointer' onClick={logout()}/>
+							<BiLogOut className='w-5 h-5 cursor-pointer' onClick={()=>logout()}/>
 						</div>
 					</Link>
 				)}

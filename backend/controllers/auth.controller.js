@@ -77,7 +77,7 @@ export const signin = async(req,res)=>{
         })
     } catch (error) {
         console.log("Error in login controller", error.message);
-        res.status(500).json({error:"Internal Server Error"})
+        //res.status(500).json({error:"Internal Server Error"})
     }
 }
 export const logout = (req,res)=>{
@@ -89,7 +89,7 @@ export const logout = (req,res)=>{
     console.log("Logged Out Successfully");}
     catch(err){
         console.log("Error in Logging out ",err);
-        res.status(400).json({error:"Error from Logout controller"})
+       // res.status(400).json({error:"Error from Logout controller"})
     }
 }
 

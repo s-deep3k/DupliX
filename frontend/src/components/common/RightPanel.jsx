@@ -4,10 +4,11 @@ import useFollow from "../../hooks/useFollow";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
+import { useEffect } from "react";
 
 const RightPanel = () => {
 
-	const {data, isLoading}= useQuery({
+	const {data, isLoading, refetch}= useQuery({
 		queryKey: ['suggestedUsers'],
 		queryFn: async()=>{
 			try {
@@ -18,15 +19,16 @@ const RightPanel = () => {
 				return data
 			} catch (err) {
 				console.log(err.message);
-				toast.error(err.message)
+				throw new Error(err.message)
 			}
 		},
 	})
 	const {follow, isPending} = useFollow()
-	const USERS_FOR_RIGHT_PANEL = []
-	console.log(USERS_FOR_RIGHT_PANEL);
+	//useEffect(()=>{refetch()},[refetch])
+	const suggestedUsers = []
+	console.log(suggestedUsers);
 	
-	if(USERS_FOR_RIGHT_PANEL.length === 0)
+	if(suggestedUsers.length === 0)
 		return <div className="md:w-64 w-0">
 		</div>
 
@@ -45,7 +47,7 @@ const RightPanel = () => {
 						</>
 					)}
 					{!isLoading &&
-						USERS_FOR_RIGHT_PANEL?.map((user) => (
+						suggestedUsers?.map((user) => (
 							<Link
 								to={`/profile/${user.username}`}
 								className='flex items-center justify-between gap-4'
