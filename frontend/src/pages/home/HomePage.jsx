@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const HomePage = () => {
 	const [feedType, setFeedType] = useState("forYou");
-	//const {data:authUser} = useQuery(['authUser'])
+	const {data:authUser} = useQuery({queryKey:['authUser']})
 
 	return (
 		<>
@@ -39,8 +39,7 @@ const HomePage = () => {
 				<CreatePost />
 
 				{/* POSTS */}
-				{/* <Posts feedType={feedType} username={authUser?.username} userId={authUser?._id} /> */}
-				<Posts feedType={feedType}/>
+				<Posts feedType={feedType} username={authUser?.username} userId={authUser?._id} />
 			</div>
 		</>
 	);

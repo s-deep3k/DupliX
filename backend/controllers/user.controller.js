@@ -8,12 +8,12 @@ export const getUserProfile = async (req,res)=>{
     try {
         const {username} = req.params
         const userProfile = await User.findOne({username}).select('-password')
-        if(!userProfile){res.status(404).json({error:"No User Found!"})}
+        if(!userProfile)res.status(404).json({error:"No User Found!"})
             
         res.status(200).json(userProfile)
     } catch (error) {
         console.log(error.message);
-        throw new Error(error.message)
+       // throw new Error(error.message)
         //res.status(400).json({error:"Error from getUserProfile"})
     }
 }

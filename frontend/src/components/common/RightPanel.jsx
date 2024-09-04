@@ -14,8 +14,9 @@ const RightPanel = () => {
 			try {
 				const res = await fetch('/api/v1/user/suggested')
 				const data = await res.json()
-				if(!res.ok) throw new Error(data.error || "Something Went Wrong with suggestions")
-				
+				if(!res.ok){ 
+					throw new Error(data.error || "Something Went Wrong with suggestions")
+				}
 				return data
 			} catch (err) {
 				console.log(err.message);

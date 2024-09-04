@@ -12,7 +12,6 @@ import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import {useQuery,} from "@tanstack/react-query";
-import toast from "react-hot-toast";
 import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow";
 import useUpdateProfile from "../../hooks/useUpdateProfile";
@@ -25,7 +24,7 @@ const ProfilePage = () => {
 	
 	const username = useParams()
 
-	const {data:authUser} = useQuery({queryKey:['authUser']})
+	const {data:authUser} = useQuery({queryKey:["authUser"]})
 
 	const {data:user, refetch,isRefetching, isLoading} = useQuery({
 		queryKey:['profile'],
@@ -33,12 +32,13 @@ const ProfilePage = () => {
 			try {
 				const res = await fetch(`/api/v1/user/profile/${authUser?.username}`)
 				const data = await res.json()
-				if(!res.ok)throw new Error(data.error || 'Something went Wrong')
-				
+				if(!res.ok){
+					throw new Error(data.error || 'Something went Wrong')
+				}
 				return data
 			} catch (error) {
 				console.log(error.message);
-				toast.error(error.message)
+				throw new Error(error.message)
 				
 			}
 		}
@@ -47,7 +47,7 @@ const ProfilePage = () => {
 	const {updateProfileDetails, isUpdating} = useUpdateProfile() 
 	
 	useEffect(()=>{refetch()},
-	[username,refetch])
+	[username])
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
 	const memberSince = formatMemberSinceDate(user?.createdAt)
@@ -232,7 +232,7 @@ const ProfilePage = () => {
 						</>
 					)}
 
-					<Posts feedType={feedType} username={username} userId={user?._id}/>
+					<Posts feedType={feedType} username={authUser?.username} userId={authUser?._id}/>
 				</div>
 			</div>
 		</>

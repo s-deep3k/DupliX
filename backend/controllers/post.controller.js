@@ -92,7 +92,7 @@ export const getUserPosts = async(req,res)=>{
         res.status(200).json(userPosts)
     }catch(err){
         console.log("Error from getUserPosts ctrller");
-        res.status(400).json({error:err.message})
+        //res.status(400).json({error:err.message})
         
     }
 }
@@ -102,7 +102,8 @@ export const createPost= async(req, res)=>{
     let {img} = req.body
     const userId = req.user._id
 
-    if(!checkUserAuth(userId))
+    const user = await User.findById(userId)
+        if(!user)
         res.status(403).json({error: "You are not authorized to create a post!"})
 
     if(!text && !img)

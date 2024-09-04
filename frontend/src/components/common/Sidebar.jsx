@@ -16,8 +16,9 @@ const Sidebar = () => {
 			try {
 				const res = await fetch('/api/v1/auth/logout')
 				const data = await res.json()
-				if(!res.ok) throw new Error(data.error || 'Something Wrong occured!')
-				
+				if(!res.ok) {
+					throw new Error(data.error || 'Something Wrong occured!')
+				}
 			} catch (error) {
 				throw new Error(error.message)
 			}
