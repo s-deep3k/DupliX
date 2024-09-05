@@ -4,11 +4,12 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
 
 const NotificationPage = () => {
+	const queryClient = useQueryClient()
 	const {data:notifications, isLoading, refetch} = useQuery({
 		queryKey: ['notifications'],
 		queryFn: async()=>{
@@ -40,6 +41,7 @@ const NotificationPage = () => {
 		},
 		onSuccess: ()=>{
 			toast.success("All Notifications Deleted !")
+			queryClient.invalidateQueries({queryKey:['notifications']})
 		},
 		onError: ()=>{
 			toast.error("Oops! Couldnt delete Notifications ")
@@ -77,7 +79,7 @@ const NotificationPage = () => {
 						<LoadingSpinner size='lg' />
 					</div>
 				)}
-				{notifications?.length === 0 && <div className='text-center p-4 font-bold'>No notifications 🤔</div>}
+				{notifications?.length === 0 && <div className='text-center p-4 font-bold'>No notifications to read 🤔</div>}
 				{notifications?.map((notification) => (
 					<div className='border-b border-gray-700' key={notification._id}>
 						<div className='flex gap-2 p-4'>

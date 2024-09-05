@@ -8,8 +8,9 @@ export const getUserProfile = async (req,res)=>{
     try {
         const {username} = req.params
         const userProfile = await User.findOne({username}).select('-password')
-        if(!userProfile)res.status(404).json({error:"No User Found!"})
-            
+        if(!userProfile){res.status(404).json({error:"No User Found!"})
+            return
+        }
         res.status(200).json(userProfile)
     } catch (error) {
         console.log(error.message);
@@ -94,7 +95,7 @@ export const suggestedProfiles = async (req,res)=>{
 
     } catch (error) {
         console.log("Error from suggested profiles controller");
-        res.status(400).json({error: error.message})
+        //res.status(400).json({error: error.message})
     }
 }
 
@@ -102,13 +103,13 @@ export const followUnfollowUser = async (req,res)=>{
     try{
     const {id} = req.params
     const userToFollow = await User.findById(id).select('-password')
-    if(!userToFollow)res.status(404).json({error:"No User to Follow Found!"})
+    if(!userToFollow) return res.status(404).json({error:"No User to Follow Found!"})
 
     const currentUser = await User.findById(req.user._id).select('-password')
-    if(!currentUser)res.status(404).json({error:"No Current User Found!"})
+    if(!currentUser)return res.status(404).json({error:"No Current User Found!"})
     
     if(id===req.user._id)
-        res.status(404).json({error:"You cannot follow / unfollow yourself!"})
+        return res.status(404).json({error:"You cannot follow / unfollow yourself!"})
     if(currentUser.following.includes(id)){
         //Unfollow
        await User.findByIdAndUpdate(req.user._id,{$pull:{followers:id}})

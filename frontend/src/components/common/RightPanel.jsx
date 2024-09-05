@@ -8,7 +8,7 @@ import { useEffect } from "react";
 
 const RightPanel = () => {
 
-	const {data, isLoading, refetch}= useQuery({
+	const {data: suggestedUsers, isLoading, refetch}= useQuery({
 		queryKey: ['suggestedUsers'],
 		queryFn: async()=>{
 			try {
@@ -20,16 +20,16 @@ const RightPanel = () => {
 				return data
 			} catch (err) {
 				console.log(err.message);
-				throw new Error(err.message)
+				toast.error(err.message)
 			}
 		},
 	})
 	const {follow, isPending} = useFollow()
-	//useEffect(()=>{refetch()},[refetch])
-	const suggestedUsers = []
-	console.log(suggestedUsers);
+	useEffect(()=>{refetch()},[refetch])
+	//const suggestedUsers = []
+	//console.log(suggestedUsers);
 	
-	if(suggestedUsers.length === 0)
+	if(suggestedUsers?.length === 0)
 		return <div className="md:w-64 w-0">
 		</div>
 

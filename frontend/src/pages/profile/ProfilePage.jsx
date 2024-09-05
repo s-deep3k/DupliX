@@ -15,6 +15,7 @@ import {useQuery,} from "@tanstack/react-query";
 import { formatMemberSinceDate } from "../../utils/date";
 import useFollow from "../../hooks/useFollow";
 import useUpdateProfile from "../../hooks/useUpdateProfile";
+import toast from "react-hot-toast";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState(null);
@@ -22,15 +23,17 @@ const ProfilePage = () => {
 	const [feedType, setFeedType] = useState("posts");
 	const {follow, isPending} = useFollow()
 	
-	const username = useParams()
-
+	const {username} = useParams()
+	//console.log(username);
+	
 	const {data:authUser} = useQuery({queryKey:["authUser"]})
 
 	const {data:user, refetch,isRefetching, isLoading} = useQuery({
 		queryKey:['profile'],
 		queryFn: async()=>{
 			try {
-				const res = await fetch(`/api/v1/user/profile/${authUser?.username}`)
+				const res = await fetch(`/api/v1/user/profile/${username}`)
+				
 				const data = await res.json()
 				if(!res.ok){
 					throw new Error(data.error || 'Something went Wrong')
@@ -38,7 +41,7 @@ const ProfilePage = () => {
 				return data
 			} catch (error) {
 				console.log(error.message);
-				throw new Error(error.message)
+				toast.error(error.message)
 				
 			}
 		}
@@ -96,7 +99,7 @@ const ProfilePage = () => {
 								</Link>
 								<div className='flex flex-col'>
 									<p className='font-bold text-lg'>{user?.fullName}</p>
-									<span className='text-sm text-slate-500'>{POSTS?.length} posts</span>
+									<span className='text-sm text-slate-500'>{user?.posts?.length} posts</span>
 								</div>
 							</div>
 							{/* COVER IMG */}
@@ -188,7 +191,7 @@ const ProfilePage = () => {
 													rel='noreferrer'
 													className='text-sm text-blue-500 hover:underline'
 												>
-													shankhadeep.dev
+													{user?.link}
 												</a>
 											</>
 										</div>
@@ -232,7 +235,7 @@ const ProfilePage = () => {
 						</>
 					)}
 
-					<Posts feedType={feedType} username={authUser?.username} userId={authUser?._id}/>
+					<Posts feedType={feedType} username={username} userId={user?._id}/>
 				</div>
 			</div>
 		</>
