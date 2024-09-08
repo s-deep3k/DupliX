@@ -102,23 +102,28 @@ export const suggestedProfiles = async (req,res)=>{
 export const followUnfollowUser = async (req,res)=>{
     try{
     const {id} = req.params
+    
     const userToFollow = await User.findById(id).select('-password')
     if(!userToFollow) return res.status(404).json({error:"No User to Follow Found!"})
-
-    const currentUser = await User.findById(req.user._id).select('-password')
-    if(!currentUser)return res.status(404).json({error:"No Current User Found!"})
-    
+        
+        const currentUser = await User.findById(req.user._id).select('-password')
+        if(!currentUser)return res.status(404).json({error:"No Current User Found!"})
+            
+            console.log("Her is "+userToFollow?.fullName+" id "+id);
     if(id===req.user._id)
         return res.status(404).json({error:"You cannot follow / unfollow yourself!"})
-    if(currentUser.following.includes(id)){
+    console.log(currentUser?.following);
+    
+    if(currentUser?.following.includes(id)){
         //Unfollow
-       await User.findByIdAndUpdate(req.user._id,{$pull:{followers:id}})
-       await User.findByIdAndUpdate(id,{$pull:{following:req.user._id}})
-       res.status(200).json({message:"User has been unfollowed!"})
+       await User.findByIdAndUpdate(req.user._id,{$pull:{following:id}})
+       await User.findByIdAndUpdate(id,{$pull:{followers:req.user._id}})
+       res.status(200).json({message:"You  unfollowed "+userToFollow.fullName+"!"})
+       return;
     }else{
         //Follow
-        await User.findByIdAndUpdate(req.user._id,{$push:{followers:id}})
-       await User.findByIdAndUpdate(id,{$push:{following:req.user._id}})
+        await User.findByIdAndUpdate(req.user._id,{$push:{following:id}})
+       await User.findByIdAndUpdate(id,{$push:{followers:req.user._id}})
 
        const newNotification = new Notification({
         type:"FOLLOW",
@@ -127,7 +132,7 @@ export const followUnfollowUser = async (req,res)=>{
     })
     await newNotification.save()
 // TODO: return the id of user as response
-       res.status(200).json({message:"User has been followed!"})
+       res.status(200).json({message:"You  followed "+userToFollow.fullName+"!"})
     }
     }
     catch(err){

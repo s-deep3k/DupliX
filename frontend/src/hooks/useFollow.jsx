@@ -9,20 +9,24 @@ const useFollow = () => {
           method: "POST"
         })
         const data = res.json()
-        if(!res.ok) throw new Error(data.error || "Follow/Unfollow unsuccessful!")
+        if(!res.ok) {
+          throw new Error(data.error || "Operation unsuccessful!")
+        }
 
-      return;
+      return data || "";
       } catch (err) {
         console.log(err.message);
+        
       }
     },
-    onSuccess : ()=>{
+    onSuccess : (data)=>{
       Promise.all([
+        queryClient.invalidateQueries({queryKey:['profile']}),
         queryClient.invalidateQueries({queryKey:['suggestedUsers']}),
         queryClient.invalidateQueries({queryKey:["notifications"]}),
         queryClient.invalidateQueries({queryKey:['authUser']})
       ])
-      toast.success("Follow / Unfollow successful!")
+      toast.success(data.message || "Follow / Unfollow successful!")
     },
     onError : ()=>{
       toast.error(error.message)
