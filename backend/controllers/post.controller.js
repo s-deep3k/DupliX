@@ -77,21 +77,22 @@ export const getUserPosts = async(req,res)=>{
         const {username} = req.params
         const user = await User.findOne({username})
         if(!user)
-            res.status(404).json({error:"User not Found!"})
+            return res.status(404).json({error:"User not Found!"})
 
         const userPosts = await Post.find({user})
         .sort({createdAt: -1})
-        .populate({
-            path:'user',
-            select: '-password'
-        }).populate({
-            path:'comments.user',
-            select: '-password'
-        })
+        // .populate({
+        //     path:'user',
+        //     select: '-password'
+        // }).populate({
+        //     path:'comments.user',
+        //     select: '-password'
+        // })
 
         res.status(200).json(userPosts)
     }catch(err){
         console.log("Error from getUserPosts ctrller");
+        throw new Error(err.message)
         //res.status(400).json({error:err.message})
         
     }
@@ -104,10 +105,10 @@ export const createPost= async(req, res)=>{
 
     const user = await User.findById(userId)
         if(!user)
-        res.status(403).json({error: "You are not authorized to create a post!"})
+        return res.status(403).json({error: "You are not authorized to create a post!"})
 
     if(!text && !img)
-        res.status(400).json({error: "You have to provide text or image for your post!"})
+        return res.status(400).json({error: "You have to provide text or image for your post!"})
     if(img){
         const uploadedImg = await cloudinary.uploader.upload(img)
         img = uploadedImg.secure_url
@@ -118,12 +119,13 @@ export const createPost= async(req, res)=>{
         text,
         img
     })
+    await newPost.save()
 
     res.status(201).json(newPost)
 }
 catch(err){
     console.log("Error from Create Post ctrller");
-    res.status(500).json({error:err.message})
+    throw new Error(err.message)
 }
 }
 
@@ -132,16 +134,24 @@ export const commentOnPost = async(req,res)=>{
     const {text} = req.body
     const userId = req.user._id
 
-    const user = await User.findById(userId)
+    try{
+        const user = await User.findById(userId)
         if(!user)
-        res.status(403).json({error: "You are not authorized to create a post!"})
+        return res.status(403).json({error: "You are not authorized to create a post!"})
 
     const post = await Post.findById(postId)
-    if(!post)res.status(404).json({error: "No Such Post found."})
+    if(!post)return res.status(404).json({error: "No Such Post found."})
     if(text)
     {
-        await Post.findByIdAndUpdate(postId,{$push:{comments:text}})
+        await Post.findByIdAndUpdate(postId,{$push:{comments:text.toString()}})
     }
+    res.status(200).json({message: `You commented "${text}" on a post`})
+}catch(err){
+    console.log(err.message);
+    res.status(500).json({error:"Internal Error from Server"})
+    throw new Error(err.message)
+    
+}
 }
 
 export const likeUnlikePost = async(req,res)=>{
@@ -175,8 +185,8 @@ export const likeUnlikePost = async(req,res)=>{
     }
 }catch(err){
     console.log("Error from Like unlike post ctrller");
-    res.status(500).json({error: "Internal Server Error"})
-    
+    //res.status(500).json({error: "Internal Server Error"})
+    throw new Error(err.message)
 }
 }
 
@@ -185,10 +195,10 @@ export const deletePost = async(req,res)=>{
     const postId = req.params.id
 
     const post = await Post.findById(postId)
-    if(!post)res.status(404).json({error: "No Such Post found."})
+    if(!post)return res.status(404).json({error: "No Such Post found."})
     
-        if(post.user.toString()!==req.user._id.toString())
-        res.status(403).json({error:"You are not authorized to delete this post!"})
+    if(post.user.toString()!==req.user._id.toString())
+        return res.status(403).json({error:"You are not authorized to delete this post!"})
     if(post.img){
         const imgUrl = post.img.split('/').pop().split('.')[0]
         await cloudinary.uploader.destroy(imgUrl)
@@ -198,6 +208,6 @@ export const deletePost = async(req,res)=>{
     }
     catch(err){
         console.log("Error from Delete Post");
-        res.status(400).json({error:err.message})
+        throw new Error(err.message)
     }
 }
