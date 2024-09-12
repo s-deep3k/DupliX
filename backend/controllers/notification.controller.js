@@ -6,14 +6,14 @@ export const getNotification = async(req,res)=>{
         const userId = req.user._id
 
         const notifications = await Notification.find({
-            to: {userId}
+            to: userId.toString()
         }).populate({
             path:"from",
             select:"username profileImg"
         })
 
-        await Notification.updateMany({to:{userId}},{read:true})
-        res.status(200).json(notifications)
+        await Notification.updateMany({to:userId.toString()},{read:true})
+        return res.status(200).json(notifications)
     } catch (err) {
         console.log("Error from get Notifctions ctrler");
         res.status(400).json({error: err.message})
@@ -28,11 +28,11 @@ export const deleteNotifications = async(req,res)=>{
         if(!user)
             res.status(404).json({error:"No User found !"})
         
-        const notifications = await Notification.deleteMany({
-            to: {userId}
+        await Notification.deleteMany({
+            to: userId.toString()
         })
 
-        res.status(200).json(notifications)
+        return res.status(200).json({message:"All Notifications deleted for "+ user.fullName})
     } catch (err) {
         console.log("Error from get Notifctions ctrler");
         res.status(400).json({error: err.message})

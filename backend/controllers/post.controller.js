@@ -141,9 +141,11 @@ export const commentOnPost = async(req,res)=>{
 
     const post = await Post.findById(postId)
     if(!post)return res.status(404).json({error: "No Such Post found."})
-    if(text)
+    if(text!=='')
     {
-        await Post.findByIdAndUpdate(postId,{$push:{comments:text.toString()}})
+        await Post.findByIdAndUpdate(postId,{$push:{comments:{text,user:userId}}})
+    }else{
+        return res.status(404).json({error:"Empty Comment cannot be posted!"})
     }
     res.status(200).json({message: `You commented "${text}" on a post`})
 }catch(err){
@@ -169,7 +171,7 @@ export const likeUnlikePost = async(req,res)=>{
         await User.findByIdAndUpdate(userId,{$pull:{likedPosts:postId}})
 
        const updatedLikes = post.likes.filter(id=> id.toString() !== userId.toString())
-       res.status(200).json(updatedLikes)
+       return res.status(200).json(updatedLikes)
     }else{
         //await Post.findByIdAndUpdate(postId,{$push:{likes:userId}})
         post.likes.push(userId)
@@ -182,11 +184,11 @@ export const likeUnlikePost = async(req,res)=>{
             type:"LIKE"
         })
         await notification.save()
+        return res.status(200).json(post.likes)
     }
 }catch(err){
     console.log("Error from Like unlike post ctrller");
-    //res.status(500).json({error: "Internal Server Error"})
-    throw new Error(err.message)
+    res.status(500).json({error: "Internal Server Error"})
 }
 }
 

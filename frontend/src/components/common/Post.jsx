@@ -25,7 +25,7 @@ const Post = ({ post}) => {
 				return data
 			} catch (err) {
 				console.log(err.message);
-				
+				throw new Error(err.message)
 			}
 		},
 		onSuccess : (updatedLikes)=>{//updatedLikes backend theke ashche= line24 er data
@@ -45,11 +45,12 @@ const Post = ({ post}) => {
 	})
 	const {mutate: commentOnPost, isPending:isCommenting} = useMutation({
 		mutationFn: async(postId)=>{
+			console.log(comment);
 			try {
 				const res =  await fetch(`/api/v1/post/comment/${postId}`, {
 					method: 'POST',
-					headers: 'Content-Type: application/json',
-					body: JSON.stringify({comment})
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({text:comment})
 				})
 				const data = await res.json()
 				if(!res.ok) throw new Error(data.error || 'Couldnt post comment')
@@ -57,11 +58,12 @@ const Post = ({ post}) => {
 				return data
 			} catch (err) {
 				console.log(err.message);
-				
+				throw new Error(err.message)
 			}
 		},
-		onSuccess : ()=>{
-			toast.success('New Comment was posted by you just now!')
+		onSuccess : (data)=>{
+			toast.success(data.message || 'New Comment was posted by you just now!')
+			setComment('')
 		},
 		onError : ()=>{
 			toast.error(error.message)
@@ -111,7 +113,6 @@ const Post = ({ post}) => {
 			return
 		}
 		commentOnPost(post._id)
-		setComment("")
 	};
 
 	const handleLikePost = () => {
@@ -161,7 +162,7 @@ const Post = ({ post}) => {
 							>
 								<FaRegComment className='w-4 h-4  text-slate-500 group-hover:text-sky-400' />
 								<span className='text-sm text-slate-500 group-hover:text-sky-400'>
-									{post.comments.length}
+									{post?.comments.length}
 								</span>
 							</div>
 							{/* We're using Modal Component from DaisyUI */}
@@ -169,12 +170,12 @@ const Post = ({ post}) => {
 								<div className='modal-box rounded border border-gray-600'>
 									<h3 className='font-bold text-lg mb-4'>COMMENTS</h3>
 									<div className='flex flex-col gap-3 max-h-60 overflow-auto'>
-										{post.comments.length === 0 && (
+										{post?.comments.length === 0 && (
 											<p className='text-sm text-slate-500'>
 												No comments yet 🤔 Be the first one 😉
 											</p>
 										)}
-										{post.comments.map((comment) => (
+										{post?.comments.map((comment) => (
 											<div key={comment._id} className='flex gap-2 items-start'>
 												<div className='avatar'>
 													<div className='w-8 rounded-full'>

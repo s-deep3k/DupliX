@@ -25,7 +25,7 @@ const __dirname = path.resolve()
 app.use("/api/v1/auth",authRouter)
 app.use("/api/v1/user",userRouter)
 app.use("/api/v1/post",postRouter)
-app.use("api/v1/notification", notificationRouter)
+app.use("/api/v1/notification", notificationRouter)
 if(process.env.NODE_ENV === "production"){
     app.use(express.static(path.join(__dirname,"/frontend/dist")))
 
