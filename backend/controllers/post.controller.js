@@ -144,10 +144,13 @@ export const commentOnPost = async(req,res)=>{
     if(text!=='')
     {
         await Post.findByIdAndUpdate(postId,{$push:{comments:{text,user:userId}}})
+        post?.comments.push({text,user:userId})
     }else{
         return res.status(404).json({error:"Empty Comment cannot be posted!"})
     }
-    res.status(200).json({message: `You commented "${text}" on a post`})
+    res.status(200).json({
+        message: `You commented "${text}" on a post`, 
+        updatedComments:post?.comments})
 }catch(err){
     console.log(err.message);
     res.status(500).json({error:"Internal Error from Server"})

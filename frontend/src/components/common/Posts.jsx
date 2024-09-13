@@ -37,7 +37,7 @@ const Posts = ({feedType, username, userId }) => {
 
 	useEffect(()=>{
 		refetch()
-	},[feedType, username, refetch])
+	},[feedType, username, ])
 	
 	
 	

@@ -8,8 +8,11 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
+import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post}) => {
+	const fullName = post.user.fullName
+	const username = post.user.username
 	const [comment, setComment] = useState("");
 	const queryClient = useQueryClient()
 	const authUser = useQuery({queryKey:['authUser']})
@@ -61,8 +64,15 @@ const Post = ({ post}) => {
 				throw new Error(err.message)
 			}
 		},
-		onSuccess : (data)=>{
-			toast.success(data.message || 'New Comment was posted by you just now!')
+		onSuccess : ({updatedComments,message})=>{
+			toast.success(message || 'New Comment was posted by you just now!')
+			queryClient.setQueryData(["posts"],oldData=>{
+				// updates only the posts that are liked, instead of fetching all
+				return oldData.map(p=>{
+					if(p._id === post._id)
+						return {...p, comments: updatedComments}
+				})
+			})
 			setComment('')
 		},
 		onError : ()=>{
@@ -99,11 +109,11 @@ const Post = ({ post}) => {
 
 	const isMyPost = postOwner._id===authUser?._id;
 
-	const formattedDate = "1h";
+	const formattedDate = formatPostDate(post.createdAt)
 
 
 	const handleDeletePost = () => {
-		deletePost(post.user._id)
+		deletePost(post._id)
 	};
 
 	const handlePostComment = (e) => {
@@ -124,17 +134,17 @@ const Post = ({ post}) => {
 		<>
 			<div className='flex gap-2 items-start p-4 border-b border-gray-700'>
 				<div className='avatar'>
-					<Link to={`/profile/${postOwner.username}`} className='w-8 rounded-full overflow-hidden'>
+					<Link to={`/profile/${username}`} className='w-8 rounded-full overflow-hidden'>
 						<img src={postOwner.profileImg || "/avatar-placeholder.png"} />
 					</Link>
 				</div>
 				<div className='flex flex-col flex-1'>
 					<div className='flex gap-2 items-center'>
-						<Link to={`/profile/${postOwner.username}`} className='font-bold'>
-							{postOwner.fullName}
+						<Link to={`/profile/${username}`} className='font-bold'>
+							{fullName}
 						</Link>
 						<span className='text-gray-700 flex gap-1 text-sm'>
-							<Link to={`/profile/${postOwner.username}`}>@{postOwner.username}</Link>
+							<Link to={`/profile/${username}`}>@{username}</Link>
 							<span>·</span>
 							<span>{formattedDate}</span>
 						</span>
