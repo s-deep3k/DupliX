@@ -113,7 +113,8 @@ export const createPost= async(req, res)=>{
         const uploadedImg = await cloudinary.uploader.upload(img)
         img = uploadedImg.secure_url
     }
-
+    console.log("Helloooooo");
+    
     const newPost = new Post({
         user: userId,
         text,
@@ -124,7 +125,8 @@ export const createPost= async(req, res)=>{
     res.status(201).json(newPost)
 }
 catch(err){
-    console.log("Error from Create Post ctrller");
+    console.log("Error from Create Post ctrller ",err.message);
+    res.status(500).json({error:"Internal Error from Server"})
     throw new Error(err.message)
 }
 }

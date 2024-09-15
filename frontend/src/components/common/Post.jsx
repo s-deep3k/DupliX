@@ -104,12 +104,12 @@ const Post = ({ post}) => {
 		}
 	})
 	
-	const postOwner = post.user;
-	const isLiked = post.likes.includes(authUser?._id);
+	const postOwner = post?.user;
+	const isLiked = post?.likes.includes(authUser?._id);
 
 	const isMyPost = postOwner._id===authUser?._id;
 
-	const formattedDate = formatPostDate(post.createdAt)
+	const formattedDate = formatPostDate(post?.createdAt)
 
 
 	const handleDeletePost = () => {
@@ -141,7 +141,7 @@ const Post = ({ post}) => {
 				<div className='flex flex-col flex-1'>
 					<div className='flex gap-2 items-center'>
 						<Link to={`/profile/${username}`} className='font-bold'>
-							{fullName}
+							{fullName || postOwner.fullName}
 						</Link>
 						<span className='text-gray-700 flex gap-1 text-sm'>
 							<Link to={`/profile/${username}`}>@{username}</Link>
@@ -237,7 +237,7 @@ const Post = ({ post}) => {
 								{!isLiked && !isLiking && (
 									<FaRegHeart className='w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500' />
 								)}
-								{isLiked && !isLiking && <FaRegHeart className='w-4 h-4 cursor-pointer text-pink-500' fill="#ec4899"/>}
+								{isLiked && !isLiking && <FaRegHeart className='w-4 h-4 cursor-pointer group-[]:text-pink-500'/>}
 								{isLiking && <LoadingSpinner size="sm"/>}
 								<span
 									className={`text-sm group-hover:text-pink-500 ${

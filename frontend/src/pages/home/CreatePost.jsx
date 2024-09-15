@@ -14,14 +14,14 @@ const CreatePost = () => {
 	const imgRef = useRef(null);
 
 	const {mutate:createPost, isPending, isError, error} = useMutation({
-		mutationFn: async({text,img})=>{
+		mutationFn: async({postBody,postMedia})=>{
 			try {
 				const res = await fetch('/api/v1/post/create',{
 					method: 'POST',
 					headers: {
 						'Content-Type':'application/json'
 					},
-					body: JSON.stringify({text,img})
+					body: JSON.stringify({text:postBody,img:postMedia})
 				})
 	
 				const data = await res.json()
@@ -29,11 +29,14 @@ const CreatePost = () => {
 				
 			} catch (err) {
 				console.log(err.message);
+				throw new Error(err.message)
 			}
 		},
 		onSuccess:()=>{
 			queryClient.invalidateQueries({queryKey:['posts']})
 			toast.success("Post created successfully");
+			setText("")
+			setImg(null)
 		},
 		onError:()=>{
 			toast.error(error.message)
@@ -42,9 +45,8 @@ const CreatePost = () => {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		createPost({text,img})
-		setText("")
-		setImg(null)
+		createPost({postBody:text,postMedia:img})
+		
 	};
 
 	const handleImgChange = (e) => {

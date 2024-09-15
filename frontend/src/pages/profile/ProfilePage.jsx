@@ -232,7 +232,7 @@ const ProfilePage = () => {
 						</>
 					)}
 
-					<Posts feedType={feedType} username={username} userId={user?._id}/>
+					<Posts feedType={feedType} username={username} userId={user?._id.toString()}/>
 				</div>
 			</div>
 		</>

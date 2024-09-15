@@ -28,10 +28,10 @@ export const updateUserProfile = async (req,res)=>{
     const userId = req.user._id
 
     let user = await User.findById(userId)
-    if(!user) res.status(404).json({error:"User Not Found!"})
+    if(!user) return res.status(404).json({error:"User Not Found!"})
     
     if((!newPassword&&currentPassword) || (!currentPassword&&newPassword))
-        res.status(400).json({error:"Current Password and New Password both must be given!"})
+        return res.status(400).json({error:"Current Password and New Password both must be given!"})
     if(newPassword && currentPassword){
         const isMatch = bcrypt.compare(currentPassword, user.password)
         if(!isMatch)res.status(400).json({error:"Current Password you entered is incorrect!"})
@@ -65,7 +65,7 @@ export const updateUserProfile = async (req,res)=>{
         res.status(200).json(user)
     }
     catch(err){
-        console.log("Error from update user cntroller");
+        console.log("Error from update user cntroller ",err.message);
         res.status(400).json({error:err.message})
     }
     
