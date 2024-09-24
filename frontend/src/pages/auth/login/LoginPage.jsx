@@ -39,8 +39,8 @@ const LoginPage = () => {
 	})
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		console.log(formData);
-		console.log(isError , error);
+		// console.log(formData);
+		// console.log(isError , error);
 		loginMutation(formData)
 	};
 

@@ -22,12 +22,12 @@ export const getUserProfile = async (req,res)=>{
 export const updateUserProfile = async (req,res)=>{
     try
     {
-    const {fullName, username, newPassword, currentPassword, email} = req.body
+    const {fullName, username, newPassword, currentPassword, email, bio, link} = req.body
     let {coverImg, profileImg} = req.body
 
     const userId = req.user._id
 
-    let user = await User.findById(userId)
+    let user = await User.findById(userId).select("-followers -following -likedPosts")
     if(!user) return res.status(404).json({error:"User Not Found!"})
     
     if((!newPassword&&currentPassword) || (!currentPassword&&newPassword))
@@ -59,6 +59,8 @@ export const updateUserProfile = async (req,res)=>{
         user.email = email || user.email
         user.coverImg = coverImg || user.coverImg
         user.profileImg = profileImg || user.profileImg
+        user.bio = bio || user.bio
+        user.link = link || user.link
 
         await user.save()
         user.password=null

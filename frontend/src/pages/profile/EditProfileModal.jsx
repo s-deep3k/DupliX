@@ -40,10 +40,6 @@ const EditProfileModal = ({authUser}) => {
 					<h3 className='font-bold text-lg my-3'>Update Profile</h3>
 					<form
 						className='flex flex-col gap-4'
-						onSubmit={(e) => {
-							e.preventDefault();
-							updateProfileDetails(formData);
-						}}
 					>
 						<div className='flex flex-wrap gap-2'>
 							<input
@@ -106,7 +102,11 @@ const EditProfileModal = ({authUser}) => {
 							name='link'
 							onChange={handleInputChange}
 						/>
-						<button className='btn btn-primary rounded-full btn-sm text-white'>
+						<button onClick={(e)=>{	
+							e.preventDefault();
+							updateProfileDetails(formData);
+						}}
+						className='btn btn-primary rounded-full btn-sm text-white'>
 							{isUpdating?'Updating...':'Update'}
 							</button>
 					</form>
