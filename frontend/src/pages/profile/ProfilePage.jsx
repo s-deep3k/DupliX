@@ -22,6 +22,8 @@ const ProfilePage = () => {
 	const {follow, isPending} = useFollow()
 	
 	const {username} = useParams()
+	console.log(username);
+	
 	
 	const {data:authUser} = useQuery({queryKey:["authUser"]})
 
@@ -41,13 +43,14 @@ const ProfilePage = () => {
 				toast.error(error.message)
 				
 			}
-		}
+		},
+		
 
 	})
 	const {updateProfileDetails, isUpdating} = useUpdateProfile() 
 	
-	useEffect(()=>{refetch()},
-	[username])
+	// useEffect(()=>{refetch()},
+	// [username])
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
 	const memberSince = formatMemberSinceDate(user?.createdAt)
