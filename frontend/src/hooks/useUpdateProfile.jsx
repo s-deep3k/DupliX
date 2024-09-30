@@ -18,13 +18,20 @@ const useUpdateProfile = () => {
 				if(!res.ok) throw new Error(data.error || "Something is Wrong!")
 				return data;
 			} catch (error) {
-				toast.error("Failed to update profile details")
+				//toast.error("Failed to update profile details")
+				throw new Error(error.message)
 				console.log(error.message);
 			}
 		},
 		onSuccess: (data)=>{
-			queryClient.invalidateQueries(['authUser'])
+			Promise.all([
+				queryClient.invalidateQueries({queryKey:['authUser']}),
+				//queryClient.invalidateQueries({queryKey:['profile']})
+			])
 			navigate(`/profile/${data.username}`)
+		},
+		onError:(error)=>{
+			toast.error(error.message)
 		}
 	})
 	return {updateProfileDetails,isUpdating}

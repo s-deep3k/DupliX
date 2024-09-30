@@ -22,7 +22,7 @@ const ProfilePage = () => {
 	const {follow, isPending} = useFollow()
 	
 	const {username} = useParams()
-	console.log(username);
+	//console.log(username);
 	
 	
 	const {data:authUser} = useQuery({queryKey:["authUser"]})
@@ -49,8 +49,8 @@ const ProfilePage = () => {
 	})
 	const {updateProfileDetails, isUpdating} = useUpdateProfile() 
 	
-	// useEffect(()=>{refetch()},
-	// [username])
+	useEffect(()=>{refetch()},
+	[username])
 	const coverImgRef = useRef(null);
 	const profileImgRef = useRef(null);
 	const memberSince = formatMemberSinceDate(user?.createdAt)
@@ -164,8 +164,8 @@ const ProfilePage = () => {
 										className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
 										onClick={async() => {
 											await updateProfileDetails({profileImg,coverImg})
-											setProfileImg(null)
-											setCoverImg(null)
+											 setProfileImg(null)
+											 setCoverImg(null)
 										}}
 									>
 										{isUpdating ?'Updating....':'Update'}
