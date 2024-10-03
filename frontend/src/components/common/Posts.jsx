@@ -28,6 +28,7 @@ const Posts = ({feedType, username, userId }) => {
 				const res = await fetch(POST_ENDPOINT)
 				const data = await res.json()
 				if(!res.ok) throw new Error(data.error || 'Something Went Wrong')
+					
 					return data
 			}catch(err){
 				toast.error(err.message)
@@ -37,10 +38,7 @@ const Posts = ({feedType, username, userId }) => {
 
 	useEffect(()=>{
 		refetch()
-	},[feedType,username])
-	
-	
-	
+	},[feedType, username , refetch])
 
 	return (
 		<>

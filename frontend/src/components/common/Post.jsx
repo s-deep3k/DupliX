@@ -1,8 +1,6 @@
-import { FaRegComment } from "react-icons/fa";
 import { BiRepost } from "react-icons/bi";
-import { FaRegHeart } from "react-icons/fa";
-import { FaRegBookmark } from "react-icons/fa6";
-import { FaTrash } from "react-icons/fa";
+import { FaRegHeart as OutLineHeart,FaRegComment, FaTrash} from "react-icons/fa";
+import { FaRegBookmark,FaHeart as SolidHeart } from "react-icons/fa6";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -15,7 +13,7 @@ const Post = ({ post}) => {
 	const username = post.user.username
 	const [comment, setComment] = useState("");
 	const queryClient = useQueryClient()
-	const authUser = useQuery({queryKey:['authUser']})
+	const {data:authUser} = useQuery({queryKey:['authUser']})
 	const {mutate: likePost, isPending:isLiking} = useMutation({
 		mutationFn: async(postId)=>{
 			try {
@@ -32,17 +30,25 @@ const Post = ({ post}) => {
 			}
 		},
 		onSuccess : (updatedLikes)=>{//updatedLikes backend theke ashche= line24 er data
-			toast.success("Post liked successfully!")
 			queryClient.setQueryData(["posts"],oldData=>{
 				// updates only the posts that are liked, instead of fetching all
+				if(updatedLikes.length>0)
+				toast.success("Post liked!")
+				else
+				toast.success("Post unliked !")
+
 				return oldData.map(p=>{
-					if(p._id === post._id)
+					if(p._id === post._id){
+						
 						return {...p, likes:updatedLikes}
+					}
+					return p;
 				})
 			})
+			//queryClient.invalidateQueries({queryKey:['posts']})
 			queryClient.invalidateQueries({queryKey:["notifications"]})
 		},
-		onError : ()=>{
+		onError : (error)=>{
 			toast.error(error.message)
 		}
 	})
@@ -68,9 +74,11 @@ const Post = ({ post}) => {
 			toast.success(message || 'New Comment was posted by you just now!')
 			queryClient.setQueryData(["posts"],oldData=>{
 				// updates only the posts that are liked, instead of fetching all
+				
 				return oldData.map(p=>{
 					if(p._id === post._id)
 						return {...p, comments: updatedComments}
+					return p
 				})
 			})
 			setComment('')
@@ -104,16 +112,16 @@ const Post = ({ post}) => {
 		}
 	})
 	
-	const postOwner = post?.user;
-	const isLiked = post?.likes.includes(authUser?._id);
-
+	const postOwner = post.user;
+	const isLiked = post.likes.includes(authUser?._id);
+	
 	const isMyPost = postOwner._id===authUser?._id;
 
 	const formattedDate = formatPostDate(post?.createdAt)
 
 
 	const handleDeletePost = () => {
-		deletePost(post._id)
+		deletePost(post?._id)
 	};
 
 	const handlePostComment = (e) => {
@@ -122,12 +130,12 @@ const Post = ({ post}) => {
 			toast.error("Empty Comment cannot be posted!")
 			return
 		}
-		commentOnPost(post._id)
+		commentOnPost(post?._id)
 	};
 
 	const handleLikePost = () => {
 		if(isLiking) return
-		likePost(post._id)
+		likePost(post?._id)
 	};
 
 	return (
@@ -235,9 +243,9 @@ const Post = ({ post}) => {
 							</div>
 							<div className='flex gap-1 items-center group cursor-pointer' onClick={handleLikePost}>
 								{!isLiked && !isLiking && (
-									<FaRegHeart className='w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500' />
+									<OutLineHeart className='w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500' />
 								)}
-								{isLiked && !isLiking && <FaRegHeart className='w-4 h-4 cursor-pointer group-[]:text-pink-500'/>}
+								{isLiked && !isLiking && <SolidHeart className='w-4 h-4 cursor-pointer text-pink-500'/>}
 								{isLiking && <LoadingSpinner size="sm"/>}
 								<span
 									className={`text-sm group-hover:text-pink-500 ${
